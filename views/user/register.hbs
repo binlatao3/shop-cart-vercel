@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<title>Register</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/register.css">
+<body>
+    <section class="ftco-section">
+        <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-12 col-lg-10">
+                        <div class="wrap d-md-flex">
+                            <div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
+                                <div class="text w-100">
+                                    <h2>Welcome to Register</h2>
+                                    <p>Have an account?</p>
+                                    <a href="/user/login" class="btn btn-white btn-outline-white">Sign In</a>
+                                </div>
+                            </div>
+                            <div class="login-wrap p-4 p-lg-5">
+                                <div class="d-flex">
+                                    <div class="w-100">
+                                    </div>
+                                    <div class="w-100">
+                                        <h3 class="mb-4">Sign up</h3>
+                                    </div>
+                                    <div class="w-100">
+                                      <p class="social-media d-flex justify-content-end">
+                                          <a href="#" class="social-icon d-flex align-items-center justify-content-center">
+                                              <span class="fa fa-facebook"></span>
+                                          </a>
+                                          <a href="#" class="social-icon d-flex align-items-center justify-content-center">
+                                              <span class="fa fa-twitter"></span>
+                                          </a>
+                                      </p>
+                                  </div>
+                            </div>
+                            <form action="" method="POST" class="signup-form">
+                                <div class="form-group mb-3">
+                                    <label class="label" for="name">Full name</label>
+                                    <input type="text" class="form-control" placeholder="Full name" name="fullname">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="name">Username</label>
+                                    <input type="text" class="form-control" placeholder="Username" name="username">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="email">Email</label>
+                                    <input type="text" class="form-control" placeholder="Email" name="email">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="password">Password</label>
+                                    <input type="password" class="form-control" placeholder="Password" name="password">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label" for="passwordConfirm">Confirm password</label>
+                                    <input type="password" class="form-control" placeholder="Confirm password" name="passwordConfirm">
+                                </div>
+                                <div class="form-group mb-3">
+                                {{#if error}}
+                                    <div class="alert alert-dismissible alert-danger" role="alert" style="display: bkock;text-align:center">
+                                        {{{error}}}
+                                    </div>
+                                {{/if}}
+                                {{#if success}}
+                                    <div class="alert alert-dismissible alert-success" role="alert" style="display: bkock;text-align:center">
+                                        {{{success}}}
+                                    </div>
+                                {{/if}}
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="form-control btn btn-primary submit px-3">Sign up now</button>
+                                </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/popper.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
