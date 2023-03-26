@@ -27,7 +27,7 @@ const uploader = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
             let body = req.body
-            let imageProductPath = path.join(process.cwd(),`/tmp/`)
+            let imageProductPath = `/tmp/`
             if(!fs.existsSync(imageProductPath))
             {
                 fs.mkdirSync(imageProductPath,{ recursive: true });
@@ -328,7 +328,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
             }
         })
         product.save().then(()=>{
-            fs.renameSync(path.join(process.cwd(),newPathImage + myImage[0].filename),path.join(process.cwd(),newPathImage + myImage[0].originalname))
+            fs.renameSync(newPathImage + myImage[0].filename,newPathImage + myImage[0].originalname)
             console.log('Susscess')
             res.redirect('list-product')
         }).catch((err)=>{
@@ -391,7 +391,7 @@ router.get('/delete-product/:id',(req,res,next) =>{
     {
         Product.findById({_id:id}).then((u)=>{
             Product.deleteOne({_id:u.id}).then((delProduct) =>{
-                fs.rmSync(path.join(process.cwd(),`/tmp/products/${u.name}`), { recursive: true, force: true })
+                fs.rmSync(`/tmp/products/${u.name}`, { recursive: true, force: true })
                 console.log("success")
             }).catch((error) =>{
                 console.log(error)
@@ -445,7 +445,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         let {myImageEdit} = req.files
         if(myImageEdit && myImageEdit.length)
         {
-            let newPathImage = path.join(process.cwd(),`/tmp/products/${body.name}/images/`)
+            let newPathImage = `/tmp/products/${body.name}/images/`
             let product = {
                 name:body.name,
                 number:body.number,
@@ -465,13 +465,13 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 // Name don't change
                 if (body.name === p.name)
                 {
-                    let oldFile = path.join(process.cwd(),`/tmp/products/${p.name}/images/${p.image.name}`)
+                    let oldFile = `/tmp/products/${p.name}/images/${p.image.name}`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if(fs.existsSync(oldFile))
                         {
                             fs.unlinkSync(oldFile)
                         }
-                        fs.renameSync(path.join(process.cwd(),newPathImage + myImageEdit[0].filename),path.join(process.cwd(),newPathImage + myImage[0].originalname))
+                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImage[0].originalname)
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -484,7 +484,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
                         }
-                        fs.renameSync(path.join(process.cwd(),newPathImage + myImageEdit[0].filename),path.join(process.cwd(),newPathImage + myImage[0].originalname))
+                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImage[0].originalname)
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -497,7 +497,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         else
         {
             Product.findById({_id:id}).then((p)=>{
-                let newPathImage = path.join(process.cwd(),`/tmp/products/${body.name}/images/`)
+                let newPathImage = `/tmp/products/${body.name}/images/`
                 let product = {
                     _id:id,
                     name:body.name,
@@ -517,7 +517,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 // Name don't change
                 if (body.name === p.name)
                 {
-                    let newFolder = path.join(process.cwd(),`/tmp/products/${p.name}/images`)
+                    let newFolder = `/tmp/products/${p.name}/images`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if (!fs.existsSync(newFolder)) {
                             fs.mkdirSync(newFolder,{recursive:true});
@@ -530,17 +530,17 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-                    let newFolder = path.join(process.cwd(),`/tmp/products/${p.name}/images`)
+                    let newFolder = `/tmp/products/${p.name}/images`
                     if (!fs.existsSync(newFolder)) {
                         fs.mkdirSync(newFolder,{recursive:true});
                     }
-                    if(fs.existsSync(path.join(process.cwd(),`tmp/products/${p.name}/images/${p.image.name}`)))
+                    if(fs.existsSync(`tmp/products/${p.name}/images/${p.image.name}`))
                     {
-                        fs.copyFileSync(path.join(process.cwd(),`/tmp/products/${p.name}/images/${p.image.name}`), path.join(process.cwd(),`/tmp/public/products/${body.name}/images/${p.image.name}`))
+                        fs.copyFileSync(`/tmp/products/${p.name}/images/${p.image.name}`, `/tmp/public/products/${body.name}/images/${p.image.name}`)
 
                     }
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        let oldFolder = path.join(process.cwd(),`/tmp/products/${p.name}`)
+                        let oldFolder = `/tmp/products/${p.name}`
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
                         }
