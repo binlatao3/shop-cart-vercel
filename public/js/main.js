@@ -3,7 +3,6 @@
 	var pathname = window.location.pathname
 	if (pathname == '/')
 	{
-		const socket = io('http://localhost:8080', { transports : ['websocket'] });
 		// Mobile Nav toggle
 		$('.menu-toggle > a').on('click', function (e) {
 			e.preventDefault();
