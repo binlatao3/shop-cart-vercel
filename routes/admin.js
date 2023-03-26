@@ -311,7 +311,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-        let newPathImage = `tmp/products/${body.name}/images/`
+        let newPathImage = `/tmp/products/${body.name}/images/`
         let product = new Product({
             name:body.name,
             number:body.number,
@@ -479,7 +479,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-                    let oldFolder = `tmp/products/${p.name}`
+                    let oldFolder = `/tmp/products/${p.name}`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
@@ -534,7 +534,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                     if (!fs.existsSync(newFolder)) {
                         fs.mkdirSync(newFolder,{recursive:true});
                     }
-                    if(fs.existsSync(`tmp/products/${p.name}/images/${p.image.name}`))
+                    if(fs.existsSync(`/tmp/products/${p.name}/images/${p.image.name}`))
                     {
                         fs.copyFileSync(`/tmp/products/${p.name}/images/${p.image.name}`, `/tmp/public/products/${body.name}/images/${p.image.name}`)
 
