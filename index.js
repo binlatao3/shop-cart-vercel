@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const path = require('path')
 const app = express();
-const io = require('./routes/socket')
 const reduceOp = function(args, reducer){
     args = Array.from(args);
     args.pop(); // => options
