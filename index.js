@@ -1,4 +1,3 @@
-require('dotenv').config()
 const express = require('express');
 const createError = require('http-errors');
 const exphbs = require('express-handlebars');
@@ -116,6 +115,7 @@ const hbs = exphbs.create({
     extname: 'hbs'
   });
 app.engine('hbs',hbs.engine)
+app.set('trust proxy', 1);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','hbs')
 app.use(express.static(path.join(__dirname, 'public')));
@@ -123,7 +123,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser('ShopCart'));
 app.use(session({
-    resave: true,
+    cookie:{
+        secure: true,
+        maxAge:60000
+    },
+    store: new RedisStore(),
+    resave: false,
     saveUninitialized: true,
     secret: "secret",
 }));  
