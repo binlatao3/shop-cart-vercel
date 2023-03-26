@@ -7,11 +7,9 @@ app.set('env', 'development')
 
 switch(app.get('env')){
     case 'development':
-        mongoose.connect(process.env.STRINGDEV)
-        console.log(`Connect db success - ${app.get('env')}`)
-        break
-    case 'production':
-        mongoose.connect(process.env.STRINGPROD)
+        mongoose.connect(process.env.MONGODB_URI,{
+            useNewUrlParser: true,
+        })
         console.log(`Connect db success - ${app.get('env')}`)
         break
 }
