@@ -328,7 +328,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
             }
         })
         product.save().then(()=>{
-            fs.renameSync(newPathImage + myImage[0].filename,newPathImage + myImage[0].originalname)
+            fs.renameSync(path.join(__dirname,'../' + newPathImage + myImage[0].filename),path.join(__dirname,'../' + newPathImage + myImage[0].originalname))
             console.log('Susscess')
             res.redirect('list-product')
         }).catch((err)=>{
