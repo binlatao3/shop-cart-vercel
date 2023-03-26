@@ -340,6 +340,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
                 imageType: myImage[0].mimetype
             }
         })
+        console.log(myImage)
         product.save().then(()=>{
             if (fs.existsSync(newPathImage + myImage[0].filename)) {
                 fs.renameSync(newPathImage + myImage[0].filename,newPathImage + myImage[0].originalname);
