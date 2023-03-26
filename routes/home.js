@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const io = require('../routes/socket')
 const Product = require('../models/Product')
 const getTime = require('../public/js/getTime')
 const User = require('../models/User')
