@@ -27,7 +27,7 @@ const uploader = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
             let body = req.body
-            let imageProductPath = path.join(__dirname,'tmp')
+            let imageProductPath = path.join(__dirname,'../tmp')
             if(!fs.existsSync(imageProductPath))
             {
                 fs.mkdirSync(imageProductPath,{ recursive: true });
