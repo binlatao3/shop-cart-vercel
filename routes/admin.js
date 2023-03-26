@@ -37,6 +37,7 @@ const uploader = multer({
                 }
             }
             let imagePath = `${imageProductPath}${body.name}/images/`
+            console.log(file)
             if(!fs.existsSync(imagePath))
             {
                 try {
