@@ -36,7 +36,7 @@ const uploader = multer({
                     console.error("Error creating directory: ", err);
                 }
             }
-            let imagePath = `${imageProductPath}${body.name}/images/${file.originalname}`
+            let imagePath = `${imageProductPath}${body.name}/images/`
             if(!fs.existsSync(imagePath))
             {
                 try {
