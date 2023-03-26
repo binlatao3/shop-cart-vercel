@@ -3,7 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
 
-if(MONGODB_URI)
+if(process.env.MONGODB_URI)
 {
     mongoose.connect(process.env.MONGODB_URI,{
         useNewUrlParser: true,
