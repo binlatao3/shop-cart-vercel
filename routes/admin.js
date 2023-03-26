@@ -27,7 +27,7 @@ const uploader = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
             let body = req.body
-            let imageProductPath = `public/products/${body.name}/images`
+            let imageProductPath = `/tmp/public/products/${body.name}/images`
             if(!fs.existsSync(imageProductPath))
             {
                 fs.mkdirSync(imageProductPath,{ recursive: true });
@@ -311,7 +311,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-        let newPathImage = `public/products/${body.name}/images/`
+        let newPathImage = `/tmp/public/products/${body.name}/images/`
         let product = new Product({
             name:body.name,
             number:body.number,
