@@ -28,7 +28,6 @@ const uploader = multer({
         destination: (req, file, cb) => {
             let body = req.body
             let imageProductPath = `/tmp/`
-            console.log(file)
             if(!fs.existsSync(imageProductPath))
             {
                 try {
@@ -37,10 +36,11 @@ const uploader = multer({
                     console.error("Error creating directory: ", err);
                 }
             }
-            let imagePath = `${imageProductPath}${body.name}/images`
+            let imagePath = `${imageProductPath}${body.name}/images/${file.originalname}`
             if(!fs.existsSync(imagePath))
             {
                 try {
+                    console.log("Create Folder success")
                     fs.mkdirSync(imagePath,{ recursive: true });
                 } catch(err) {
                     console.error("Error creating directory: ", err);
