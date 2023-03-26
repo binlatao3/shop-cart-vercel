@@ -27,7 +27,7 @@ const uploader = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
             let body = req.body
-            let imageProductPath = `/tmp/public/products/${body.name}/images`
+            let imageProductPath = `tmp/products/${body.name}/images`
             if(!fs.existsSync(imageProductPath))
             {
                 fs.mkdirSync(imageProductPath,{ recursive: true });
@@ -311,7 +311,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-        let newPathImage = `/tmp/public/products/${body.name}/images/`
+        let newPathImage = `tmp/products/${body.name}/images/`
         let product = new Product({
             name:body.name,
             number:body.number,
@@ -327,6 +327,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
                 imageType: myImage[0].mimetype
             }
         })
+        console.log(myImage)
         product.save().then(()=>{
             fs.renameSync(myImage[0].path,newPathImage + myImage[0].originalname)
             console.log('Susscess')
@@ -389,7 +390,7 @@ router.get('/delete-product/:id',(req,res,next) =>{
     var id = req.params.id
     Product.findById({_id:id}).then((u)=>{
         Product.deleteOne({_id:u.id}).then((delProduct) =>{
-            fs.rmSync(`./public/products/${u.name}`, { recursive: true, force: true })
+            fs.rmSync(`tmp/products/${u.name}`, { recursive: true, force: true })
             console.log("success")
         }).catch((error) =>{
             console.log(error)
@@ -442,7 +443,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         let {myImageEdit} = req.files
         if(myImageEdit && myImageEdit.length)
         {
-            let newPathImage = `public/products/${body.name}/images/`
+            let newPathImage = `tmp/products/${body.name}/images/`
             let product = {
                 name:body.name,
                 number:body.number,
@@ -462,13 +463,13 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 // Name don't change
                 if (body.name === p.name)
                 {
-                    let oldFile = `./public/products/${p.name}/images/${p.image.name}`
+                    let oldFile = `tmp/products/${p.name}/images/${p.image.name}`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if(fs.existsSync(oldFile))
                         {
                             fs.unlinkSync(oldFile)
                         }
-                        fs.renameSync(myImageEdit[0].path,`./public/products/${body.name}/images/`+ myImageEdit[0].originalname)
+                        fs.renameSync(myImageEdit[0].path,`tmp/products/${body.name}/images/`+ myImageEdit[0].originalname)
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -476,12 +477,12 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-                    let oldFolder = `./public/products/${p.name}`
+                    let oldFolder = `tmp/products/${p.name}`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
                         }
-                        fs.renameSync(myImageEdit[0].path,`./public/products/${body.name}/images/`+ myImageEdit[0].originalname)
+                        fs.renameSync(myImageEdit[0].path,`tmp/products/${body.name}/images/`+ myImageEdit[0].originalname)
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -494,7 +495,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         else
         {
             Product.findById({_id:id}).then((p)=>{
-                let newPathImage = `public/products/${body.name}/images/`
+                let newPathImage = `tmp/products/${body.name}/images/`
                 let product = {
                     _id:id,
                     name:body.name,
@@ -514,7 +515,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 // Name don't change
                 if (body.name === p.name)
                 {
-                    let newFolder = `./public/products/${p.name}/images`
+                    let newFolder = `tmp/products/${p.name}/images`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if (!fs.existsSync(newFolder)) {
                             fs.mkdirSync(newFolder,{recursive:true});
@@ -527,17 +528,17 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-                    let newFolder = `./public/products/${body.name}/images`
+                    let newFolder = `tmp/products/${body.name}/images`
                     if (!fs.existsSync(newFolder)) {
                         fs.mkdirSync(newFolder,{recursive:true});
                     }
-                    if(fs.existsSync(`./public/products/${p.name}/images/${p.image.name}`))
+                    if(fs.existsSync(`tmp/products/${p.name}/images/${p.image.name}`))
                     {
-                        fs.copyFileSync(`./public/products/${p.name}/images/${p.image.name}`, `./public/products/${body.name}/images/${p.image.name}`)
+                        fs.copyFileSync(`tmp/products/${p.name}/images/${p.image.name}`, `./public/products/${body.name}/images/${p.image.name}`)
 
                     }
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        let oldFolder = `./public/products/${p.name}`
+                        let oldFolder = `tmp/products/${p.name}`
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
                         }
