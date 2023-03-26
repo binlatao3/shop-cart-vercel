@@ -341,8 +341,11 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
             }
         })
         product.save().then(()=>{
-            fs.renameSync(newPathImage + myImage[0].filename,newPathImage + myImage[0].originalname)
-            console.log('Susscess')
+            if (fs.existsSync(newPathImage + myImage[0].filename)) {
+                fs.renameSync(newPathImage + myImage[0].filename,newPathImage + myImage[0].originalname);
+            } else {
+                console.error("File not found:", newPathImage + myImage[0].filename);
+            }
             res.redirect('list-product')
         }).catch((err)=>{
             console.log(err) 
