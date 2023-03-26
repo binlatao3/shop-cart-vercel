@@ -28,9 +28,12 @@ const uploader = multer({
         destination: (req, file, cb) => {
             let body = req.body
             let imageProductPath = `/tmp/`
-            if(!fs.existsSync(imageProductPath))
-            {
-                fs.mkdirSync(imageProductPath,{ recursive: true });
+            if(!fs.existsSync(imageProductPath)) {
+                try {
+                    fs.mkdirSync(imageProductPath, { recursive: true });
+                } catch(err) {
+                    console.error("Error creating directory: ", err);
+                }
             }
             cb(null, imageProductPath);
         }
