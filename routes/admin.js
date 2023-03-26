@@ -27,7 +27,7 @@ const uploader = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
             let body = req.body
-            let imageProductPath = path.join(__dirname,`/tmp/`)
+            let imageProductPath = path.join(__dirname,`/tmp/product`)
             if(!fs.existsSync(imageProductPath))
             {
                 try {
@@ -326,7 +326,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-        let newPathImage = path.join(__dirname,`/tmp/${body.name}/images/`)
+        let newPathImage = path.join(__dirname,`/tmp/product/${body.name}/images/`)
         let product = new Product({
             name:body.name,
             number:body.number,
