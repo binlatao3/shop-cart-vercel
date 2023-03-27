@@ -25,7 +25,7 @@ module.exports = [
 
     check('myImage')
     .custom((value,{req,next}) =>{
-        var img = req.files.myImage
+        var img = req.file
         if(img)
         {
             return true;
