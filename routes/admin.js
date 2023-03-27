@@ -368,6 +368,10 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
                         console.error("Error creating directory: ", err);
                     }
                 }
+                else
+                {
+                    console.log("YES, IT NOT EXSITED")
+                }
             } else {
                 console.error("File not found:", myImage);
             }
