@@ -326,7 +326,7 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
         let body = req.body
         let myImage = req.file
         let tempPathImage = `/tmp/products/${body.name}/images/`
-        let newPathImage = path.join(__dirname,`/public/products/${body.name}/images/`)
+        let newPathImage = path.join(__dirname,`../public/products/${body.name}/images/`)
         if(!fs.existsSync(newPathImage))
         {
             try {
@@ -334,6 +334,10 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
             } catch(err) {
                 console.error("Error creating directory: ", err);
             }
+        }
+        if(fs.existsSync(newPathImage))
+        {
+            console.log("True")
         }
         let product = new Product({
             name:body.name,
