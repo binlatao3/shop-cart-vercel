@@ -46,15 +46,6 @@ const uploader = multer({
                     console.error("Error creating directory: ", err);
                 }
             }
-            let newPathImage = `public/products/${body.name}/images/`
-            if(!fs.existsSync(newPathImage))
-            {
-                try {
-                    fs.mkdirSync(newPathImage,{ recursive: true });
-                } catch(err) {
-                    console.error("Error creating directory: ", err);
-                }
-            }
             cb(null, imagePath);
         }
     }),
@@ -336,10 +327,6 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
         let myImage = req.file
         let tempPathImage = `/tmp/products/${body.name}/images/`
         let newPathImage = path.join(__dirname,`../public/products/${body.name}/images/`)
-        if(fs.existsSync(newPathImage))
-        {
-            console.log("True")
-        }
         let product = new Product({
             name:body.name,
             number:body.number,
@@ -355,7 +342,6 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
                 imageType: myImage.mimetype
             }
         })
-        console.log(tempPathImage + myImage.originalname, newPathImage + myImage.originalname)
         product.save().then(()=>{
             if (fs.existsSync(myImage.path)) {
                 fs.renameSync(myImage.path, tempPathImage + myImage.originalname,(err) =>{
@@ -365,10 +351,18 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
                        
                       }
                 });
-                fs.copyFileSync(tempPathImage + myImage.originalname,newPathImage + myImage.originalname)
+                if(!fs.existsSync(newPathImage))
+                {
+                    try {
+                        fs.mkdirSync(newPathImage,{ recursive: true });
+                    } catch(err) {
+                        console.error("Error creating directory: ", err);
+                    }
+                }
                 if(fs.existsSync(newPathImage))
                 {
                     try {
+                        fs.copyFileSync(tempPathImage + myImage.originalname,newPathImage + myImage.originalname)
                         fs.unlinkSync(tempPathImage + myImage.originalname);
                     } catch(err) {
                         console.error("Error creating directory: ", err);
