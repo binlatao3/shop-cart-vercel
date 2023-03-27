@@ -326,7 +326,7 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
         let body = req.body
         let myImage = req.file
         let tempPathImage = `/tmp/products/${body.name}/images/`
-        let newPathImage = `public/products/${body.name}/images/`
+        let newPathImage = `./public/products/${body.name}/images/`
         let product = new Product({
             name:body.name,
             number:body.number,
