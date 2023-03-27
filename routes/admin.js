@@ -351,11 +351,11 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
         })
         product.save().then(()=>{
             if (fs.existsSync(myImage.path)) {
-                fs.renameSync(myImage.path, newPathImage + myImage.originalname,(err) =>{
+                fs.copyFileSync(myImage.path, newPathImage + myImage.originalname,(err) =>{
                     if (err) {
                         console.error('Error moving file:', err);
                       } else {
-                        console.log('File moved successfully!');
+                        fs.unlinkSync(myImage.path)
                       }
                 });
             } else {
@@ -521,7 +521,7 @@ router.post('/edit-product/:id',uploader.single('myImageEdit'),updateValidator ,
                 else // Change
                 {
                     console.log("2 true")
-                    let oldFolder = `./public/products/${p.name}`
+                    let oldFolder = `/public/products/${p.name}`
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         if (fs.existsSync(oldFolder)){
                             fs.rmSync(oldFolder, { recursive: true, force: true })
