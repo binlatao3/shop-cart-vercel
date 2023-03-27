@@ -46,6 +46,15 @@ const uploader = multer({
                     console.error("Error creating directory: ", err);
                 }
             }
+            let newPathImage = `public/products/${body.name}/images/`
+            if(!fs.existsSync(newPathImage))
+            {
+                try {
+                    fs.mkdirSync(newPathImage,{ recursive: true });
+                } catch(err) {
+                    console.error("Error creating directory: ", err);
+                }
+            }
             cb(null, imagePath);
         }
     }),
@@ -327,14 +336,6 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
         let myImage = req.file
         let tempPathImage = `/tmp/products/${body.name}/images/`
         let newPathImage = path.join(__dirname,`../public/products/${body.name}/images/`)
-        if(!fs.existsSync(newPathImage))
-        {
-            try {
-                fs.mkdirSync(newPathImage,{ recursive: true });
-            } catch(err) {
-                console.error("Error creating directory: ", err);
-            }
-        }
         if(fs.existsSync(newPathImage))
         {
             console.log("True")
