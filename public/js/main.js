@@ -359,7 +359,7 @@
 								$('#cart-list-dropdown').prepend(`
 								<div class="product-widget">
 										<div class="product-img">
-											<img src="/products/${c.productName}/images/${c.productImage.name}" alt="">
+											<img src="./products/${c.productName}/images/${c.productImage.name}" alt="">
 										</div>
 										<div class="product-body">
 											<h3 id="product-name-dropdown" class="product-name"><a href="/product/${c.productName}">${c.productName}</a></h3>
@@ -409,7 +409,7 @@
 							$('#cart-list-dropdown').append(`
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="/products/${data.newCart.productName}/images/${data.newCart.productImage.name}" alt="">
+										<img src="./products/${data.newCart.productName}/images/${data.newCart.productImage.name}" alt="">
 									</div>
 									<div class="product-body">
 										<h3 id="product-name-dropdown" class="product-name"><a href="/product/${data.newCart.productName}">${data.newCart.productName}</a></h3>
@@ -704,7 +704,7 @@ function switchPage(e)
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
 								<div id="newItem" class="product-img">
-									<img src="/products/${p.name}/images/${p.image.name}" alt="">
+									<img src="./products/${p.name}/images/${p.image.name}" alt="">
 									<div class="product-label">
 										<span class="sale">-30%</span>
 										<span class="new">NEW</span>
@@ -749,7 +749,7 @@ function switchPage(e)
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
 								<div id="newItem" class="product-img">
-									<img src="/products/${p.name}/images/${p.image.name}" alt="">
+									<img src="./products/${p.name}/images/${p.image.name}" alt="">
 									<div class="product-label">
 										<span class="sale">-30%</span>
 										<span class="new">NEW</span>
@@ -794,7 +794,7 @@ function switchPage(e)
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
 								<div id="newItem" class="product-img">
-									<img src="/products/${p.name}/images/${p.image.name}" alt="">
+									<img src="./products/${p.name}/images/${p.image.name}" alt="">
 									<div class="product-label">
 										<span class="sale">-30%</span>
 										<span class="new">NEW</span>
@@ -839,7 +839,7 @@ function switchPage(e)
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
 								<div id="newItem" class="product-img">
-									<img src="/products/${p.name}/images/${p.image.name}" alt="">
+									<img src="./products/${p.name}/images/${p.image.name}" alt="">
 									<div class="product-label">
 										<span class="sale">-30%</span>
 										<span class="new">NEW</span>
@@ -897,7 +897,7 @@ function filter_product(value)
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
 								<div id="newItem" class="product-img">
-									<img src="/products/${p.name}/images/${p.image.name}" alt="">
+									<img src="./products/${p.name}/images/${p.image.name}" alt="">
 									<div class="product-label">
 										<span class="sale">-30%</span>
 										<span class="new">NEW</span>
@@ -1001,7 +1001,7 @@ function quickAddCart(e)
 						$('#cart-list-dropdown').prepend(`
 						<div class="product-widget">
 								<div class="product-img">
-									<img src="/products/${c.productName}/images/${c.productImage.name}" alt="">
+									<img src="./products/${c.productName}/images/${c.productImage.name}" alt="">
 								</div>
 								<div class="product-body">
 									<h3 id="product-name-dropdown" class="product-name"><a href="/product/${c.productName}">${c.productName}</a></h3>
@@ -1059,7 +1059,7 @@ function quickAddCart(e)
 					$('#cart-list-dropdown').append(`
 						<div class="product-widget">
 							<div class="product-img">
-								<img src="/products/${data.newCart.productName}/images/${data.newCart.productImage.name}" alt="">
+								<img src="./products/${data.newCart.productName}/images/${data.newCart.productImage.name}" alt="">
 							</div>
 							<div class="product-body">
 								<h3 id="product-name-dropdown" class="product-name"><a href="/product/${data.newCart.productName}">${data.newCart.productName}</a></h3>
