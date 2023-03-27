@@ -47,7 +47,7 @@ const uploader = multer({
                     console.error("Error creating directory: ", err);
                 }
             }
-            cb(null, imagePath);
+            cb(null, imagePath);    
         }
     }),
     fileFilter:checkFileType
@@ -476,7 +476,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 address: body.address,
                 image: {
                     path: newPathImage,
-                    name: path.basename(myImageEdit[0].originalname),
+                    name: myImageEdit[0].originalname,
                     imageType: myImageEdit[0].mimetype
                 }
             }
@@ -490,7 +490,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                         {
                             fs.unlinkSync(oldFile)
                         }
-                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImage[0].originalname)
+                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImageEdit[0].originalname)
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
