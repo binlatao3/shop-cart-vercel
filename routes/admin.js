@@ -7,7 +7,7 @@ const updateValidator = require('../middleware/validate/updateValidator')
 const multer = require('multer')
 const fs = require('fs')
 const path = require('path')
-
+const resolve = path.resolve
 const Product = require('../models/Product')
 const User = require('../models/User')
 
@@ -37,7 +37,6 @@ const uploader = multer({
                 }
             }
             let imagePath = `${imageProductPath}/${body.name}/images/`
-            console.log(file)
             if(!fs.existsSync(imagePath))
             {
                 try {
@@ -338,11 +337,10 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
             address: body.address,
             image: {
                 path: newPathImage,
-                name: path.basename(myImage[0].originalname),
+                name: myImage[0].originalname,
                 imageType: myImage[0].mimetype
             }
         })
-        console.log(myImage)
         product.save().then(()=>{
             if (fs.existsSync(myImage[0].path)) {
                 fs.renameSync(myImage[0].path,newPathImage + myImage[0].originalname);
