@@ -325,6 +325,7 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
     {
         let body = req.body
         let myImage = req.file
+        let tempPathImage = `/tmp/products/${body.name}/images/`
         let newPathImage = `public/products/${body.name}/images/`
         if(!fs.existsSync(newPathImage))
         {
@@ -349,15 +350,25 @@ router.post('/add-product',uploader.single('myImage'),addValidator,(req,res,next
                 imageType: myImage.mimetype
             }
         })
+        console.log(tempPathImage + myImage.originalname, newPathImage + myImage.originalname)
         product.save().then(()=>{
             if (fs.existsSync(myImage.path)) {
-                fs.copyFileSync(myImage.path, newPathImage + myImage.originalname,(err) =>{
+                fs.renameSync(myImage.path, tempPathImage + myImage.originalname,(err) =>{
                     if (err) {
                         console.error('Error moving file:', err);
                       } else {
-                        fs.unlinkSync(myImage.path)
+                       
                       }
                 });
+                fs.copyFileSync(tempPathImage + myImage.originalname,newPathImage + myImage.originalname)
+                if(fs.existsSync(newPathImage))
+                {
+                    try {
+                        fs.unlinkSync(tempPathImage + myImage.originalname);
+                    } catch(err) {
+                        console.error("Error creating directory: ", err);
+                    }
+                }
             } else {
                 console.error("File not found:", myImage);
             }
