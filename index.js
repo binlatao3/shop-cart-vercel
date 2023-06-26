@@ -2,18 +2,11 @@ const express = require('express');
 const createError = require('http-errors');
 const exphbs = require('express-handlebars');
 const flash = require('express-flash')
-<<<<<<< HEAD
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const path = require('path')
 const passport = require('passport');
-=======
-const session = require('cookie-session')
-const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser')
-const path = require('path')
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 const app = express();
 const reduceOp = function(args, reducer){
     args = Array.from(args);
@@ -132,7 +125,6 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser('ShopCart'));
 app.use(session({
-<<<<<<< HEAD
     resave: true,
     saveUninitialized: true,
     secret: "secret",
@@ -149,18 +141,6 @@ passport.deserializeUser(function (obj, cb) {
 });
 
   
-=======
-    cookie:{
-        secure: true,
-        maxAge:60000
-    },
-    resave: false,
-    saveUninitialized: true,
-    secret: "secret",
-}));  
-app.use(flash())
-
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 // db
 const db = require('./db')
 
@@ -169,10 +149,7 @@ const userRouter = require('./routes/user');
 const productRouter = require('./routes/product');
 const adminRouter = require('./routes/admin')
 const storeRouter = require('./routes/store');
-<<<<<<< HEAD
 const facebookRouter = require('./middleware/auth/facebook-auth');
-=======
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 
 // var signupRouter = require('./routes/signup');
 
@@ -181,11 +158,8 @@ app.use('/user', userRouter);
 app.use('/product', productRouter);
 app.use('/admin', adminRouter);
 app.use('/store',storeRouter);
-<<<<<<< HEAD
 app.use('/auth/facebook', facebookRouter);
 
-=======
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {
 //     next(createError(404));

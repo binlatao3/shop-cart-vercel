@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 require('dotenv').config();
-=======
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 const express = require('express')
 const router = express.Router()
 const getTime = require('../public/js/getTime')
@@ -9,10 +6,7 @@ const {validationResult} = require('express-validator')
 const addValidator = require('../middleware/validate/addValidator')
 const updateValidator = require('../middleware/validate/updateValidator')
 const multer = require('multer')
-<<<<<<< HEAD
 const { storage,destroyCloudinary,renameCloudinary } = require('../storage/storage');
-=======
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 const fs = require('fs')
 const path = require('path')
 
@@ -33,35 +27,7 @@ const checkFileType = (req, file, cb) => {
 };
 
 const uploader = multer({
-<<<<<<< HEAD
     storage: storage,
-=======
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            let body = req.body
-            let imageProductPath = `/tmp/products`
-            if(!fs.existsSync(imageProductPath))
-            {
-                try {
-                    fs.mkdirSync(imageProductPath,{ recursive: true });
-                } catch(err) {
-                    console.error("Error creating directory: ", err);
-                }
-            }
-            let imagePath = `${imageProductPath}/${body.name}/images/`
-            if(!fs.existsSync(imagePath))
-            {
-                try {
-                    console.log("Create Folder success")
-                    fs.mkdirSync(imagePath,{ recursive: true });
-                } catch(err) {
-                    console.error("Error creating directory: ", err);
-                }
-            }
-            cb(null, imagePath);    
-        }
-    }),
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
     fileFilter:checkFileType
 })
 
@@ -338,11 +304,7 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-<<<<<<< HEAD
         console.log(myImage)
-=======
-        let newPathImage = `/tmp/products/${body.name}/images/`
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
         let product = new Product({
             name:body.name,
             number:body.number,
@@ -353,26 +315,13 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
             detail:body.detail,
             address: body.address,
             image: {
-<<<<<<< HEAD
                 path: myImage[0].path,
                 name: myImage[0].originalname,
-=======
-                path: newPathImage,
-                name: path.basename(myImage[0].originalname),
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                 imageType: myImage[0].mimetype
             }
         })
         product.save().then(()=>{
-<<<<<<< HEAD
             console.log('success')
-=======
-            if (fs.existsSync(myImage[0].path)) {
-                fs.renameSync(myImage[0].path,newPathImage + myImage[0].originalname);
-            } else {
-                console.error("File not found:", myImage);
-            }
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
             res.redirect('list-product')
         }).catch((err)=>{
             console.log(err) 
@@ -386,13 +335,6 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     }
     else
     {
-<<<<<<< HEAD
-=======
-        let {myImage} = req.files
-        if(myImage)
-            fs.unlinkSync(myImage[0].path)
-
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
         let messages = result.mapped()
         let message = ''
         for(m in messages)
@@ -491,10 +433,6 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         let {myImageEdit} = req.files
         if(myImageEdit && myImageEdit.length)
         {
-<<<<<<< HEAD
-=======
-            let newPathImage = `/tmp/products/${body.name}/images/`
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
             let product = {
                 name:body.name,
                 number:body.number,
@@ -505,11 +443,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 detail:body.detail,
                 address: body.address,
                 image: {
-<<<<<<< HEAD
                     path: myImageEdit[0].path,
-=======
-                    path: newPathImage,
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                     name: myImageEdit[0].originalname,
                     imageType: myImageEdit[0].mimetype
                 }
@@ -518,17 +452,7 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 // Name don't change
                 if (body.name === p.name)
                 {
-<<<<<<< HEAD
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
-=======
-                    let oldFile = `/tmp/products/${p.name}/images/${p.image.name}`
-                    Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        if(fs.existsSync(oldFile))
-                        {
-                            fs.unlinkSync(oldFile)
-                        }
-                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImageEdit[0].originalname)
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -537,18 +461,9 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-<<<<<<< HEAD
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         // renameCloudinary(p.name,body.name)
                         destroyCloudinary(p.name)
-=======
-                    let oldFolder = `/tmp/products/${p.name}`
-                    Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        if (fs.existsSync(oldFolder)){
-                            fs.rmSync(oldFolder, { recursive: true, force: true })
-                        }
-                        fs.renameSync(newPathImage + myImageEdit[0].filename,newPathImage + myImageEdit[0].originalname)
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
                         console.log(error)
@@ -561,10 +476,6 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
         else
         {
             Product.findById({_id:id}).then((p)=>{
-<<<<<<< HEAD
-=======
-                let newPathImage = `/tmp/products/${body.name}/images/`
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                 let product = {
                     _id:id,
                     name:body.name,
@@ -576,29 +487,15 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                     detail:body.detail,
                     address: body.address,
                     image: {
-<<<<<<< HEAD
                         path: p.image.path,
                         name: p.image.name,
                         imageType: p.image.imageType
-=======
-                        path: newPathImage,
-                        name: p.image.name,
-                        imageType: p.image.name
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                     }
                 }
                 // Name don't change
                 if (body.name === p.name)
                 {
-<<<<<<< HEAD
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
-=======
-                    let newFolder = `/tmp/products/${p.name}/images`
-                    Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        if (!fs.existsSync(newFolder)) {
-                            fs.mkdirSync(newFolder,{recursive:true});
-                        }
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                         console.log("success")
                         res.redirect(`./${id}`)
                     }).catch((error)=>{
@@ -607,25 +504,8 @@ router.post('/edit-product/:id',uploader.fields([{name:'myImageEdit'}]),updateVa
                 }
                 else // Change
                 {
-<<<<<<< HEAD
                     Product.findOneAndUpdate({_id:id},product).then(()=>{
                         renameCloudinary(p.name,body.name)
-=======
-                    let newFolder = `/tmp/products/${body.name}/images`
-                    if (!fs.existsSync(newFolder)) {
-                        fs.mkdirSync(newFolder,{recursive:true});
-                    }
-                    if(fs.existsSync(`/tmp/products/${p.name}/images/${p.image.name}`))
-                    {
-                        fs.copyFileSync(`/tmp/products/${p.name}/images/${p.image.name}`, `/tmp/products/${body.name}/images/${p.image.name}`)
-
-                    }
-                    Product.findOneAndUpdate({_id:id},product).then(()=>{
-                        let oldFolder = `/tmp/products/${p.name}`
-                        if (fs.existsSync(oldFolder)){
-                            fs.rmSync(oldFolder, { recursive: true, force: true })
-                        }
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
                         console.log("success")
                         res.redirect(`./${id}`)
                     }).catch((error)=>{

@@ -474,7 +474,6 @@
 		}
 
 		$('input:radio[name="payment"]').attr('checked',false)
-<<<<<<< HEAD
 
 		$('#review-form-user').submit(function(e){
 			e.preventDefault();
@@ -525,10 +524,6 @@
 		}
 	
 	}
-=======
-	}
-
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 })(jQuery);
 
 window.addEventListener('load', function () {
