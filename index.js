@@ -2,7 +2,7 @@ const express = require('express');
 const createError = require('http-errors');
 const exphbs = require('express-handlebars');
 const flash = require('express-flash')
-const session = require('express-session')
+const session = require('cookie-session')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const path = require('path')
@@ -132,6 +132,24 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash())
+app.use(function(request, response, next) {
+    if (request.session && !request.session.regenerate) {
+        request.session.regenerate = (cb) => {
+            cb()
+        }
+    }
+    if (request.session && !request.session.save) {
+        request.session.save = (cb) => {
+            cb()
+        }
+    }
+    if (request.session && !request.session.destroy) {
+        request.session.destroy = (cb) => {
+          request.session = null;
+        };
+    }
+    next()
+})
 
 passport.serializeUser(function (user, cb) {
     cb(null, user);
