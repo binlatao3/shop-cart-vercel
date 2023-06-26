@@ -82,6 +82,7 @@ router.get('/',(req,res,next) => {
                     }
             })
             var user = req.session.user
+            console.log(user)
             var infoUser = []
             var infoProduct = []
             if(user)

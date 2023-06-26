@@ -35,7 +35,7 @@ passport.use(
         } else {
           console.log('Facebook User already exist in DB..');
           // console.log(profile);
-          return cb(null, false);
+          return cb(null, user);
         }
       }
     )
@@ -48,7 +48,7 @@ router.get('/callback',passport.authenticate('facebook', {
   }),
   function (req, res) {
     console.log(req.user)
-    req.session.user = req.user.id;
+    req.session.user = req.user.username;
     // Successful authentication, redirect to success screen.
     res.redirect('/');
   }
