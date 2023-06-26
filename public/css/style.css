@@ -1712,10 +1712,13 @@ textarea.input {
   color: #D10024;
 }
 
+<<<<<<< HEAD
 .rating-avg .rating-stars>i.fa-star-half-o, .rating .rating-stars>i.fa-star {
   color: #D10024;
 }
 
+=======
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 .rating li {
   margin: 5px 0px;
 }
@@ -1784,7 +1787,11 @@ textarea.input {
   color: #E4E7ED;
 }
 
+<<<<<<< HEAD
 .reviews .review-heading .review-rating>i.fa-star{
+=======
+.reviews .review-heading .review-rating>i.fa-star {
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
   color: #D10024;
 }
 

@@ -3,7 +3,10 @@ var router = express.Router();
 const Product = require('../models/Product')
 const User = require('../models/User')
 const userCart = require('../models/userCart')
+<<<<<<< HEAD
 const rating = require('../models/Rating')
+=======
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 
 /* GET home page. */
 router.get('/:id', function(req, res, next) {
@@ -108,7 +111,10 @@ router.get('/:id', function(req, res, next) {
 router.post('/:id', function(req, res, next) {
     var username = req.session.user
     var body = req.body
+<<<<<<< HEAD
     console.log(body)
+=======
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
     if(username)
     {
         if(parseInt(body.productNumber) > 9)

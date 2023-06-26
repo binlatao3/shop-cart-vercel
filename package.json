@@ -15,7 +15,10 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
+<<<<<<< HEAD
     "cloudinary": "^1.37.2",
+=======
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
     "connect-multiparty": "^2.2.0",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.0.0",
@@ -29,6 +32,7 @@
     "http-errors": "^2.0.0",
     "mongoose": "^7.0.0",
     "multer": "^1.4.5-lts.1",
+<<<<<<< HEAD
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
@@ -36,5 +40,10 @@
     "passport-facebook": "^3.0.0",
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0"
+=======
+    "nodemailer": "^6.9.1",
+    "nodemon": "^2.0.20",
+    "socket.io": "^4.6.1"
+>>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
   }
 }
