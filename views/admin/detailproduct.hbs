@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/add-style.css">
+    <link rel="stylesheet" href="/css/detail-style.css">
+    <title>Electronic wallet</title>
+</head>
+<body>
+<div class="formbold-main-wrapper">
+  <!-- Author: FormBold Team -->
+  <!-- Learn More: https://formbold.com -->
+  {{#each result}}
+        <div class="formbold-form-wrapper">
+            <div class="file-image myImage-detail">
+                    <img src="{{{this.image.path}}}" alt=""></img>
+            </div>
+            <form method="POST" action="" id="" enctype="multipart/form-data">
+            <div class="formbold-input-wrapp formbold-mb-3">
+                <label for="firstname" class="formbold-form-label"> Name </label>
+                <div>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{{this.name}}}"
+                    id="name"
+                    placeholder="Product name"
+                    class="formbold-form-input"
+                    disabled
+                />
+                </div>
+            </div>
+            <div class="formbold-mb-3">
+                <label for="number" class="formbold-form-label"> Number </label>
+                <input
+                type="number"
+                name="number"
+                id="number"
+                value="{{{this.number}}}"
+                placeholder="0"
+                class="formbold-form-input number-detail"
+                disabled
+                />
+            </div>
+
+            <div class="formbold-mb-3">
+                <label for="dom" class="formbold-form-label"> Date of manufacture </label>
+                <input type="datetime-local" name="dom" id="dom" class="formbold-form-input" value="{{{this.date}}}" disabled/>
+            </div>
+            <div class="formbold-mb-3">
+                <label class="formbold-form-label" for="type">Categories</label>
+                <select class="formbold-form-input type" name="type" id="type" disabled>
+                    <option value="{{{this.type}}}">{{{this.type}}}</option>
+                </select>
+            </div>
+            <div class="formbold-input">
+                <div>
+                    <label for="desc" class="formbold-form-label"> Details </label>
+                    <textarea rows="4" cols="10" name="detail" id = "detail" class="formbold-form-input" disabled>{{{this.detail}}}</textarea>
+                </div>
+            </div>
+            <div class="formbold-input">
+                <div>
+                    <label for="detail" class="formbold-form-label"> Description </label>
+                    <textarea rows="4" cols="10" name="desc" id = "desc" class="formbold-form-input" disabled>{{{this.desc}}}</textarea>
+                </div>
+            </div>
+            </form>
+        </div>
+    {{/each}}
+</div>
+</body>
