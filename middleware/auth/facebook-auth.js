@@ -11,7 +11,7 @@ passport.use(
       {
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.FACEBOOK_SECRET_KEY,
-        callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+        callbackURL: 'https://shop-cart-vercel.vercel.app/auth/facebook/callback',
         profileFields: ['id','displayName','name','gender','email']
       },
       async function (accessToken, refreshToken, profile, cb) {
