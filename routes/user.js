@@ -401,15 +401,16 @@ router.post('/check-out',checkUser(1),billingValidator, function(req, res, next)
                             </body>
                             </html>`
 
-                        var mailOptions = {
-                            from: 'Electro Shop <noreply.electroshop@gmail.com>',
-                            to: u.email,
-                            subject: `Order From Electro Shop`,
-                            html:html
-                        };
                             
                         if(body.emailBill)
                         {
+                            var mailOptions = {
+                                from: 'Electro Shop <noreply.electroshop@gmail.com>',
+                                to: body.emailBill,
+                                subject: `Order From Electro Shop`,
+                                html:html
+                            };
+
                             if(body.creditCardBill && body.dateBill)
                             {
                                 let bill = new Bill({
@@ -498,6 +499,13 @@ router.post('/check-out',checkUser(1),billingValidator, function(req, res, next)
                         }
                         else
                         {
+                            var mailOptions = {
+                                from: 'Electro Shop <noreply.electroshop@gmail.com>',
+                                to: u.email,
+                                subject: `Order From Electro Shop`,
+                                html:html
+                            };
+                            
                             if(body.creditCardBill && body.dateBill)
                             {
                                 let bill = new Bill({
