@@ -676,11 +676,7 @@ html{
 .table-tbody-td-img{
     width: 50px;
     height: 50px;
-<<<<<<< HEAD
     /* border-radius: 50%; */
-=======
-    border-radius: 50%;
->>>>>>> a2ff58ed6877617f6a0df4978810861addf8205a
 }
 
 .table-tbody-td-action{
