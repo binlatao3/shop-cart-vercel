@@ -42,6 +42,25 @@ const hbs = exphbs.create({
       gte : function(){ return reduceOp(arguments, (a,b) => a  >= b); },
       and : function(){ return reduceOp(arguments, (a,b) => a  && b); },
       or  : function(){ return reduceOp(arguments, (a,b) => a  || b); },
+      sub  : function(){ return reduceOp(arguments, (a,b) => parseInt(a)  - parseInt(b)); },
+      isNumber : function(value,options) {
+        const pattern = /^\d+$/;
+        if (pattern.test(value)) 
+        {
+            return options.fn(this);
+        } 
+        else 
+        {
+            return options.inverse(this);
+        }
+      },
+      repeat: function(start, end, block) {
+        let accum = '';
+        for (let i = start; i <= end; ++i) {
+          accum += block.fn(i);
+        }
+        return accum;
+      },
       inc : function(value, options)
       {
           return parseInt(value) + 1;
@@ -109,7 +128,7 @@ const hbs = exphbs.create({
                 return breakline
             }
         }
-      }
+      },
   },
     defaultLayout: false,
     partialsDir: ['views'],

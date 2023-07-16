@@ -475,35 +475,123 @@
 
 		$('input:radio[name="payment"]').attr('checked',false)
 
+
+		function resetRating() {
+			// Lấy đối tượng div chứa phần tử input-rating
+			var ratingContainer = document.getElementById("rating-container");
+			if(ratingContainer)
+			{
+				var review = document.getElementById('review-input');
+				// Lấy tất cả các phần tử input radio trong div chứa phần tử input-rating
+				var stars = ratingContainer.querySelectorAll('input[type="radio"]');
+			
+				// Lặp qua các phần tử input radio để xóa thuộc tính checked
+				for (var i = 0; i < stars.length; i++) {
+				stars[i].checked = false;
+				}
+				review.value = ''
+			}
+		  }
+		  
+		  // Gọi hàm resetRating khi trang được tải lại hoặc reset
+		window.addEventListener("load", resetRating);
+
 		$('#review-form-user').submit(function(e){
-			e.preventDefault();
+			e.preventDefault()
 			var name = $('h2.product-name').text() 
+			var review = $('#review-input')
+			var ratingContainer = document.getElementById("rating-container");
+    		var stars = ratingContainer.querySelectorAll('input[type="radio"]');
+			var rating;
+			// Duyệt qua các phần tử input radio để tìm phần tử có thuộc tính checked
+			for (var i = 0; i < stars.length; i++) {
+			if (stars[i].checked) {
+				// Lấy giá trị value của phần tử input radio đã được chọn
+				rating = stars[i].value;
+				break; // Thoát khỏi vòng lặp sau khi tìm thấy phần tử đã chọn
+			}
+			}
 
 			$.ajax({ 
 				type: "POST", 
 				url: window.location.href, 
-				data: {"productName":name}, 
+				data: {"productName":name,'rating':rating,"postReview":review.val()}, 
 				cache: false,
 				success: function(data){
-					if(data.code === '0')
+					if(data.code === '10')
+					{
+						// Không có lỗi, cho phép page load
+						$(this).unbind('submit').submit();
+						for (var i = 0; i < stars.length; i++) {
+							stars[i].checked = false;
+						}
+						review.val('')
+						$('#row-list-review').html("")
+						data.listReviewSlice.map(p =>{
+							$('#row-list-review').append(`
+								<li>
+									<div class="review-heading">
+										<h5 class="name">${p.userReview}</h5>
+										<p class="date">${p.date}</p>
+										<div class="review-rating">
+											${addNoneStar(p.rating)}
+										</div>
+									</div>
+									<div class="review-body">
+										<p>${p.reviewPost}</p>
+									</div>
+								</li>
+							`)
+						})
+						let nextpages = 1
+						let totalPages = data.totalPages
+						$('ul#pagination-review').html("")
+						$('ul#pagination-review').find('li.arrow-pagination').remove()
+						for(var i = 0;i < data.totalPages.length;i++)
+						{
+							if(totalPages[i] === nextpages)
+							{
+								$('ul#pagination-review').append(`
+									<li onclick="switchPageReview(this)" class="active">${nextpages}</li>
+								`)
+							}
+							else
+							{
+								if(typeof totalPages[i] !== 'number')
+								{
+									$('ul#pagination-review').append(`
+										<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+									`)
+								}
+								else
+								{
+									$('ul#pagination-review').append(`
+										<li class="" onclick="switchPageReview(this)">${totalPages[i]}</li>
+									`)
+								}
+							}
+						}
+						$('ul#pagination-review').append(`
+							<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+							<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+						`)
+					}
+					else
 					{
 						$('.alert-dismissible#review').addClass('alert-danger')
 						$('.alert-dismissible#review').show()
 						$('.alert-dismissible#review').html(`
 							<strong>Error</strong> ${data.message} 
-							<a href="/user/login">Click here</a>
 						`).fadeIn().delay(3000).fadeOut(function() {
 							$('.alert-dismissible#review').removeClass('alert-danger')
 							$(this).empty(); 
 						});
 					}
-					else {
-						// Không có lỗi, cho phép page load
-						$('#review-form-user').unbind('submit').submit();
-					}
 				}
 			})
 		})
+
+		scrollReview()
 	}
 	if (window.location.hash === "#_=_"){
 		console.log(window.location.hash)
@@ -557,6 +645,8 @@ window.addEventListener('load', function () {
 	$('.input-number').find('input#price-min').val("")
 	$('.input-number').find('input#price-max').val("")
 	$('.input-number').on('keyup', function(e) {
+		var error = []
+		console.log($(this).find('input#price-max').val())
 		if($(this).find('input#price-min').val())
 		{
 			priceMin = $(this).find('input#price-min').val()
@@ -565,7 +655,34 @@ window.addEventListener('load', function () {
 		{
 			priceMax = $(this).find('input#price-max').val()
 		}
-		filter_product({listType,state,priceMin,priceMax})
+		if($(this).find('input#price-max').val() == '')
+		{
+			error.push('Please choose price max')
+			$('.alert-dismissible#filter').addClass('alert-danger')
+			$('.alert-dismissible#filter').show()
+			$('.alert-dismissible#filter').html(`
+				<strong>Error</strong> ${error} 
+			`).fadeIn().delay(3000).fadeOut(function() {
+				$('.alert-dismissible#filter').removeClass('alert-danger')
+				$(this).empty(); 
+			});
+		}
+		if($(this).find('input#price-min').val() == '')
+		{
+			error.push('Please choose price min')
+			$('.alert-dismissible#filter').addClass('alert-danger')
+			$('.alert-dismissible#filter').show()
+			$('.alert-dismissible#filter').html(`
+				<strong>Error</strong> ${error} 
+			`).fadeIn().delay(3000).fadeOut(function() {
+				$('.alert-dismissible#filter').removeClass('alert-danger')
+				$(this).empty(); 
+			});
+		}
+		if(error.length == 0)
+		{
+			filter_product({listType,state,priceMin,priceMax})
+		}
 	})
 
 	// $.ajax({ 
@@ -578,9 +695,36 @@ window.addEventListener('load', function () {
 	// 	}
 		
 	// })
-
+	scrollReview()
 })
 
+function scrollReview()
+{
+	var reviewLink = document.getElementById('review-link-comment');
+	var tab3Link = document.querySelector('.tab-nav li:nth-child(3) a');
+    var isTab3Active = false;
+
+	reviewLink.addEventListener('click', function(event) {
+		event.preventDefault();
+
+		if (isTab3Active) {
+            // Kéo xuống review-form nếu đã switch qua tab 3
+            tab3Link.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            // Chuyển sang tab 3
+            tab3Link.click();
+
+            // Xác định khi tab 3 đã hoàn thành hiệu ứng chuyển đổi
+            tab3Link.addEventListener('transitionend', function() {
+                // Kéo xuống review-form
+                tab3Link.scrollIntoView({ behavior: 'smooth' });
+            }, { once: true });
+
+            // Đánh dấu là đã switch qua tab 3
+            isTab3Active = true;
+        }
+    });
+}
 function switchPage(e)
 {
 	var currentpages = $('ul#pagination-product > li.active')
@@ -591,67 +735,50 @@ function switchPage(e)
 		currentpages.removeClass('active')
 		nextpages.addClass('active')
 	}
-	var currentpages = parseInt(currentpages.text().trim()) - 1
-	var nextpages = parseInt(nextpages.text().trim()) - 1
-	var totalpages = parseInt($('ul#pagination-product > li:not(".arrow-pagination")').length)
 
+	var currentpages = parseInt(currentpages.text().trim())
+	var nextpages;
+	var pageTotal = parseInt(($('ul#pagination-product > li:not(".arrow-pagination")').last()).text())
+	
 	if(!$(e).text() && $(e).find('i[class*="fa-angle-left"]').length)
 	{
 		nextpages = currentpages - 1
 	}
-	if(!$(e).text() && $(e).find('i[class*="fa-angle-double-left"]').length)
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-left"]').length)
 	{
-		nextpages = 0
-		$(`ul#pagination-product > li:contains(${currentpages+1})`).removeClass('active')
-		$(`ul#pagination-product > li:contains(${nextpages+1})`).addClass('active')
+		nextpages = 1
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
 		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-left"]').parent().remove()
 		$('ul#pagination-product').append(`
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
 		`)
 	}
-	if(!$(e).text() && $(e).find('i[class*="fa-angle-right"]').length)
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-right"]').length)
 	{
 		nextpages = currentpages + 1
-		$(`ul#pagination-product > li:contains(${currentpages+1})`).removeClass('active')
-		$(`ul#pagination-product > li:contains(${nextpages+1})`).addClass('active')
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
 	}
-	if(!$(e).text() && $(e).find('i[class*="fa-angle-double-right"]').length)
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-right"]').length)
 	{
-		nextpages = totalpages - 1
-		$(`ul#pagination-product > li:contains(${currentpages+1})`).removeClass('active')
-		$(`ul#pagination-product > li:contains(${nextpages+1})`).addClass('active')
+		nextpages = pageTotal
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
 		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
 		$('ul#pagination-product').prepend(`
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
 		`)
 	}
-	if(nextpages + 1 == totalpages)
+	else
 	{
-		$('ul#pagination-product').html("")
-		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
-		$('ul#pagination-product').prepend(`
-			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
-			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
-		`)
-		for(var i = 0;i < totalpages;i++)
-		{
-			if(i === nextpages)
-			{
-				$('ul#pagination-product').append(`
-					<li onclick="switchPage(this)" class="active">${i + 1}</li>
-				`)
-			}
-			else
-			{
-				$('ul#pagination-product').append(`
-					<li class="" onclick="switchPage(this)">${i+1}</li>
-				`)
-			}
-		}
+		nextpages = parseInt(nextpages.text().trim())
 	}
-	if(nextpages > 0 && nextpages < totalpages - 1)
+
+	var totalPages = paginationPage(nextpages,pageTotal)
+	if(nextpages == pageTotal)
 	{
 		$('ul#pagination-product').html("")
 		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
@@ -659,43 +786,94 @@ function switchPage(e)
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
 		`)
-		for(var i = 0;i < totalpages;i++)
+		for(var i = 0;i < totalPages.length;i++)
 		{
-			if(i === nextpages)
+			if(totalPages[i] === nextpages)
 			{
 				$('ul#pagination-product').append(`
-					<li onclick="switchPage(this)" class="active">${i+1}</li>
+					<li onclick="switchPage(this)" class="active">${nextpages}</li>
 				`)
 			}
 			else
 			{
-				$('ul#pagination-product').append(`
-					<li class="" onclick="switchPage(this)">${i+1}</li>
-				`)
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPage(this)">${totalPages[i]}</li>
+					`)
+				}
 			}
 		}
+	}
+	if(nextpages > 0 && nextpages < pageTotal)
+	{
+		$('ul#pagination-product').html("")
+		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-product').prepend(`
+			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+
+		for (var i = 0; i < totalPages.length; i++) {
+			if (totalPages[i] === nextpages) {
+				$('ul#pagination-product').append(`
+				<li onclick="switchPage(this)" class="active">${nextpages}</li>
+				`);
+			} 
+			else 
+			{
+				if (typeof totalPages[i] !== 'number') 
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`);
+				} 
+				else 
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPage(this)">${totalPages[i]}</li>
+					`);
+				}
+			}
+		}
+
 		$('ul#pagination-product').append(`
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
 			<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
 		`)
 	}
-	if(nextpages == 0)
+	if(nextpages == 1)
 	{
 		$('ul#pagination-product').html("")
 		$('ul#pagination-product').find('li.arrow-pagination').remove()
-		for(var i = 0;i < totalpages;i++)
+		for(var i = 0;i < totalPages.length;i++)
 		{
-			if(i === nextpages)
+			if(totalPages[i] === nextpages)
 			{
 				$('ul#pagination-product').append(`
-					<li onclick="switchPage(this)" class="active">${i+1}</li>
+					<li onclick="switchPage(this)" class="active">${nextpages}</li>
 				`)
 			}
 			else
 			{
-				$('ul#pagination-product').append(`
-					<li class="" onclick="switchPage(this)">${i+1}</li>
-				`)
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPage(this)">${totalPages[i]}</li>
+					`)
+				}
 			}
 		}
 		$('ul#pagination-product').append(`
@@ -738,10 +916,11 @@ function switchPage(e)
 		type: "POST",
 		url: `/store/page/${nextpages}`,
 		cache: false,
-		data: { 'currentpages': currentpages, 'nextpages': nextpages,'totalpages': totalpages,'listType':listType,
+		data: { 'currentpages': currentpages-1, 'nextpages': nextpages-1,'totalpages': pageTotal,'listType':listType,
 		'state':state,'priceMin':priceMin,'priceMax':priceMax
 		},
 		success: function(data) {
+			console.log(data)
 			if(data.code === '1')
 			{
 				$('#row-list-product').html("")
@@ -927,6 +1106,192 @@ function switchPage(e)
 	return false;
 }
 
+function switchPageReview(e)
+{
+	var currentpages = $('ul#pagination-review > li.active')
+	var nextpages = $(e)
+
+	if(!$(e).hasClass("arrow-pagination"))
+	{
+		currentpages.removeClass('active')
+		nextpages.addClass('active')
+	}
+	var currentpages = parseInt(currentpages.text().trim())
+	var nextpages;
+	var pageTotal = parseInt(($('ul#pagination-review > li:not(".arrow-pagination")').last()).text())
+	
+	if(!$(e).text() && $(e).find('i[class*="fa-angle-left"]').length)
+	{
+		nextpages = currentpages - 1
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-left"]').length)
+	{
+		nextpages = 1
+		$(`ul#pagination-review > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-review > li:contains(${nextpages})`).addClass('active')
+		$('ul#pagination-review').find('li.arrow-pagination').children('i[class*="-left"]').parent().remove()
+		$('ul#pagination-review').append(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-right"]').length)
+	{
+		nextpages = currentpages + 1
+		$(`ul#pagination-review > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-review > li:contains(${nextpages})`).addClass('active')
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-right"]').length)
+	{
+		nextpages = pageTotal
+		$(`ul#pagination-review > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-review > li:contains(${nextpages})`).addClass('active')
+		$('ul#pagination-review').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-review').prepend(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+	}
+	else
+	{
+		nextpages = parseInt(nextpages.text().trim())
+	}
+
+	var totalPages = paginationPage(nextpages,pageTotal)
+
+	if(nextpages == pageTotal)
+	{
+		$('ul#pagination-review').html("")
+		$('ul#pagination-review').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-review').prepend(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+		for(var i = 0;i < totalPages.length;i++)
+		{
+			if(totalPages[i] === nextpages)
+			{
+				$('ul#pagination-review').append(`
+					<li onclick="switchPageReview(this)" class="active">${nextpages}</li>
+				`)
+			}
+			else
+			{
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-review').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-review').append(`
+						<li class="" onclick="switchPageReview(this)">${totalPages[i]}</li>
+					`)
+				}
+			}
+		}
+	}
+	if(nextpages > 0 && nextpages < pageTotal)
+	{
+		$('ul#pagination-review').html("")
+		$('ul#pagination-review').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-review').prepend(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+
+		for (var i = 0; i < totalPages.length; i++) {
+			if (totalPages[i] === nextpages) {
+			  $('ul#pagination-review').append(`
+				<li onclick="switchPageReview(this)" class="active">${nextpages}</li>
+			  `);
+			} 
+			else 
+			{
+			  if (typeof totalPages[i] !== 'number') {
+				$('ul#pagination-review').append(`
+				  <div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+				`);
+			  } else {
+				$('ul#pagination-review').append(`
+				  <li class="" onclick="switchPageReview(this)">${totalPages[i]}</li>
+				`);
+			  }
+			}
+		}
+
+		$('ul#pagination-review').append(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+	if(nextpages == 1)
+	{
+		$('ul#pagination-review').html("")
+		$('ul#pagination-review').find('li.arrow-pagination').remove()
+		for(var i = 0;i < totalPages.length;i++)
+		{
+			if(totalPages[i] === nextpages)
+			{
+				$('ul#pagination-review').append(`
+					<li onclick="switchPageReview(this)" class="active">${nextpages}</li>
+				`)
+			}
+			else
+			{
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-review').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-review').append(`
+						<li class="" onclick="switchPageReview(this)">${totalPages[i]}</li>
+					`)
+				}
+			}
+		}
+		$('ul#pagination-review').append(`
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+
+	$.ajax ({
+		type: "POST",
+		url: `${window.location.href}/page/${nextpages}`,
+		cache: false,
+		data: { 'currentpages': currentpages-1, 'nextpages': nextpages-1,'totalpages': pageTotal},
+		success: function(data) {
+			if(data.code === '50')
+			{
+				$('#row-list-review').html("")
+				data.listReview.map(p =>{
+					$('#row-list-review').append(`
+						<li>
+							<div class="review-heading">
+								<h5 class="name">${p.userReview}</h5>
+								<p class="date">${p.date}</p>
+								<div class="review-rating">
+									${addNoneStar(p.rating)}
+								</div>
+							</div>
+							<div class="review-body">
+								<p>${p.reviewPost}</p>
+							</div>
+						</li>
+					`)
+				})
+			}
+		}
+	})
+	
+	return false;
+}
+
 function filter_product(value)
 {
 	$.ajax({
@@ -935,6 +1300,7 @@ function filter_product(value)
 		type: 'POST',
 		data: value,
 		success: function(data){
+			console.log(data)
 			if(data.listProduct.length)
 			{
 				$('#row-list-product').html("")
@@ -979,21 +1345,21 @@ function filter_product(value)
 						</div>
 					`)
 				})
-				if(data.currentpage === 1)
+				if(data.currentpage - 1 === 0)
 				{
 					$('ul#pagination-product').html("")
-					for(var i = 1;i <= data.pageTotal;i++)
+					for(var i = 0;i < data.totalPages.length;i++)
 					{
-						if(i === data.currentpage)
+						if(i === data.currentpage - 1)
 						{
 							$('ul#pagination-product').append(`
-								<li onclick="switchPage(this)" class="active">${i}</li>
+								<li onclick="switchPage(this)" class="active">${data.totalPages[i]}</li>
 							`)
 						}
 						else
 						{
 							$('ul#pagination-product').append(`
-								<li onclick="switchPage(this)" >${i}</li>
+								<li onclick="switchPage(this)" >${data.totalPages[i]}</li>
 							`)
 						}
 					}
@@ -1402,4 +1768,67 @@ function submitBill(e)
 			$(this).empty(); 
 		});
 	}
+}
+
+function paginationPage(nextpages,pageTotal)
+{
+	let totalPages = []
+	if (pageTotal <= 6) {
+		for(var i = 1;i<=pageTotal;i++)
+		{
+			totalPages.push(i)
+		}
+	}
+	else
+	{
+		totalPages.push(1)
+
+		if (nextpages > 3) {
+			totalPages.push("...");
+		}
+
+		if (nextpages == pageTotal) {
+			totalPages.push(nextpages - 2);
+		}
+
+		if (nextpages > 2) {
+			totalPages.push(nextpages - 1);
+		}
+
+		if (nextpages != 1 && nextpages != pageTotal) {
+			totalPages.push(nextpages);
+		}
+
+		if (nextpages < pageTotal - 1) {
+			totalPages.push(nextpages + 1);
+		}
+	
+		if (nextpages == 1) {
+			totalPages.push(nextpages + 2);
+		}
+	
+		if (nextpages < pageTotal - 2) {
+			totalPages.push("...");
+		}
+		totalPages.push(pageTotal)
+	}
+
+	return totalPages
+}
+
+function addNoneStar(rating)
+{
+	let html = ''
+	for(var i=1;i <= 5;i++)
+	{
+		if(i <= rating)
+		{
+			html += '<i class="fa fa-star"></i>'
+		}
+		else
+		{
+			html += '<i class="fa fa-star-o"></i>'
+		}
+	}
+	return html
 }

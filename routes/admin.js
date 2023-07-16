@@ -9,6 +9,7 @@ const multer = require('multer')
 const { storage,destroyCloudinary,renameCloudinary } = require('../storage/storage');
 const fs = require('fs')
 const path = require('path')
+const Rating = require('../models/Rating')
 
 
 const Product = require('../models/Product')
@@ -41,7 +42,7 @@ router.get('/',(req,res,next) =>{
 router.get('/list-product',(req,res,next) =>{
     var perPage = 10
     , page = 0
-    Product.find({}).sort({date:1}).clone()
+    Product.find({}).sort({date:-1}).clone()
     .limit(perPage)
     .skip(perPage * page)
     .then(function(result) {
@@ -49,7 +50,6 @@ router.get('/list-product',(req,res,next) =>{
         result= result.map(item=> item.toObject()).sort(function(a,b){
             return new Date(b.date) - new Date(a.date);
         });
-
         Product.count({}).exec().then((count) => {
             if(count)
             {
@@ -77,7 +77,8 @@ router.get('/list-product',(req,res,next) =>{
                     nextPage,
                     prevP,
                     nextP,
-                    pageTotal
+                    pageTotal,
+                    page
                 })
             }
             else
@@ -101,7 +102,7 @@ router.get('/list-product',(req,res,next) =>{
 router.get('/list-product/:page',(req,res,next) =>{
     var perPage = 10
     , page =  Math.max(0, req.params.page) - 1;
-    Product.find({}).sort({date:1}).clone()
+    Product.find({}).sort({date:-1}).clone()
     .limit(perPage)
     .skip(perPage * page)
     .then(function(result) {
@@ -137,7 +138,8 @@ router.get('/list-product/:page',(req,res,next) =>{
                     nextPage,
                     prevP,
                     nextP,
-                    pageTotal
+                    pageTotal,
+                    page
                 })
             }
             else
@@ -320,7 +322,12 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
                 imageType: myImage[0].mimetype
             }
         })
-        product.save().then(()=>{
+        product.save().then((p)=>{
+            let newRating = new Rating({
+                productId:p._id,
+                productName:p.name,
+            })
+            newRating.save()
             console.log('success')
             res.redirect('list-product')
         }).catch((err)=>{

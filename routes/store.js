@@ -104,9 +104,46 @@ router.get('/',(req,res,next) => {
                                         // if (currentpage < pageTotal - 2) {
                                         //     totalPages.push("...");
                                         //  }
-                                        for(var i = 1;i<=pageTotal;i++)
+                                        if (pageTotal <= 6) {
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                        }
+                                        else
                                         {
-                                            totalPages.push(i)
+                                            totalPages.push(1)
+                
+                                            if (currentpage > 3) {
+                                                totalPages.push("...");
+                                            }
+                
+                                            if (currentpage == pageTotal) {
+                                                totalPages.push(currentpage - 2);
+                                            }
+                
+                                            if (currentpage > 2) {
+                                                totalPages.push(currentpage - 1);
+                                            }
+                
+                                            if (currentpage != 1 && currentpage != pageTotal) {
+                                                totalPages.push(currentpage);
+                                            }
+                
+                                            if (currentpage < pageTotal - 1) {
+                                                totalPages.push(currentpage + 1);
+                                            }
+                                        
+                                            // special case where first page is selected...
+                                            if (currentpage == 1) {
+                                                totalPages.push(currentpage + 2);
+                                            }
+                                        
+                                            //print "..." if currentPage is < lastPage -2
+                                            if (currentpage < pageTotal - 2) {
+                                                totalPages.push("...");
+                                            }
+                                            totalPages.push(pageTotal)
                                         }
                                         return res.render('store',{
                                             infoProduct:infoProduct,
@@ -176,9 +213,46 @@ router.get('/',(req,res,next) => {
                             // if (currentpage < pageTotal - 2) {
                             //     totalPages.push("...");
                             //  }
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+    
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+    
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+    
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+    
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+    
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             return res.render('store',{
                                 infoProduct:infoProduct,
@@ -209,7 +283,6 @@ router.post('/', function(req, res, next) {
     var username = req.session.user
     var body = req.body
     var listProduct = []
-
     var perPage = 2
     , page = 0
     if(body.listType)
@@ -249,9 +322,46 @@ router.post('/', function(req, res, next) {
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '1',listProduct:listProduct,message:"list,price,checkbox",
                             currentpage,
@@ -265,7 +375,59 @@ router.post('/', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '2',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({category:{ $in : body.listType }}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * page).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({category:{ $in : body.listType }}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages)
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -321,7 +483,59 @@ router.post('/', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '4',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({category:{ $in : body.listType }}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * page).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({category:{ $in : body.listType }}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages)
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -385,7 +599,7 @@ router.post('/', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '2',listProduct:listProduct});
+                            res.status(200).send({ code: '6',listProduct:listProduct});
                         }
                     })
                 })
@@ -441,7 +655,7 @@ router.post('/', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '4',listProduct:listProduct});
+                            res.status(200).send({ code: '6',listProduct:listProduct});
                         }
                     })
                 })
@@ -474,7 +688,7 @@ router.post('/', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
@@ -541,9 +755,46 @@ router.post('/', function(req, res, next) {
             
                         let prevP = 1;
                         let nextP = pageTotal;
-                        for(var i = 1;i<=pageTotal;i++)
+                        if (pageTotal <= 6) {
+                            for(var i = 1;i<=pageTotal;i++)
+                            {
+                                totalPages.push(i)
+                            }
+                        }
+                        else
                         {
-                            totalPages.push(i)
+                            totalPages.push(1)
+
+                            if (currentpage > 3) {
+                                totalPages.push("...");
+                            }
+
+                            if (currentpage == pageTotal) {
+                                totalPages.push(currentpage - 2);
+                            }
+
+                            if (currentpage > 2) {
+                                totalPages.push(currentpage - 1);
+                            }
+
+                            if (currentpage != 1 && currentpage != pageTotal) {
+                                totalPages.push(currentpage);
+                            }
+
+                            if (currentpage < pageTotal - 1) {
+                                totalPages.push(currentpage + 1);
+                            }
+                        
+                            // special case where first page is selected...
+                            if (currentpage == 1) {
+                                totalPages.push(currentpage + 2);
+                            }
+                        
+                            //print "..." if currentPage is < lastPage -2
+                            if (currentpage < pageTotal - 2) {
+                                totalPages.push("...");
+                            }
+                            totalPages.push(pageTotal)
                         }
                         res.status(200).send({ code: '4',listProduct:listProduct,message:"price",
                         currentpage,
@@ -557,7 +808,60 @@ router.post('/', function(req, res, next) {
                     }
                     else
                     {
-                        res.status(200).send({ code: '2',listProduct:listProduct});
+                        if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                        {
+                            Product.find({}).sort({date:-1})
+                            .clone()
+                            .limit(perPage)
+                            .skip(perPage * page).then((product) =>{
+                                var arr = product.map(p =>{
+                                    listProduct.push({
+                                        id:p._id,
+                                        name:p.name,
+                                        price:p.price,
+                                        date:p.date,
+                                        category:p.category,
+                                        image:{
+                                            path:p.image.path,
+                                            name:p.image.name,
+                                            imageType:p.image.imageType
+                                        }
+                                    })
+                                })
+                                Product.count({}).exec().then((count) => {
+                                    if(count)
+                                    {
+                                        let totalPages = []
+                                        let pageTotal = Math.ceil(count / perPage)
+                                        let currentpage = parseInt(body.currentpages) + 1
+                            
+                                        let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                        let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                            
+                                        let prevP = 1;
+                                        let nextP = pageTotal;
+                                        for(var i = 1;i<=pageTotal;i++)
+                                        {
+                                            totalPages.push(i)
+                                        }
+                                        res.status(200).send({ code: '5',listProduct:listProduct,
+                                        currentpage,
+                                        totalPages,
+                                        prevPage,
+                                        nextPage,
+                                        prevP,
+                                        nextP,
+                                        pageTotal
+                                        });
+                                    }
+                                })
+                            })
+                        }
+                        else
+                        {
+                            res.status(200).send({ code: '6',listProduct:listProduct});
+                        }
+                        
                     }
                 })
             })
@@ -590,7 +894,7 @@ router.post('/', function(req, res, next) {
                     {
                         let totalPages = []
                         let pageTotal = Math.ceil(count / perPage)
-                        let currentpage = parseInt(body.currentpages)
+                        let currentpage = parseInt(body.currentpages) + 1
             
                         let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                         let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
@@ -758,16 +1062,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '2',listProduct:listProduct,
                             currentpage,
@@ -781,7 +1122,59 @@ router.post('/page/:page', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '1',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({category:{ $in : body.listType }}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({category:{ $in : body.listType }}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages) + 1
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -814,16 +1207,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '3',listProduct:listProduct,
                             currentpage,
@@ -837,7 +1267,59 @@ router.post('/page/:page', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '4',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({category:{ $in : body.listType }}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({category:{ $in : body.listType }}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages) + 1
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -870,16 +1352,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '5',listProduct:listProduct,
                             currentpage,
@@ -930,16 +1449,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = body.currentpages
+                            let currentpage = body.currentpages + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '2',listProduct:listProduct,
                             currentpage,
@@ -986,16 +1542,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = body.currentpages
+                            let currentpage = body.currentpages + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '3',listProduct:listProduct,
                             currentpage,
@@ -1042,16 +1635,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '5',listProduct:listProduct,
                             currentpage,
@@ -1105,16 +1735,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '2',listProduct:listProduct,
                             currentpage,
@@ -1128,7 +1795,59 @@ router.post('/page/:page', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '1',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages) + 1
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -1161,16 +1880,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '3',listProduct:listProduct,
                             currentpage,
@@ -1184,7 +1940,59 @@ router.post('/page/:page', function(req, res, next) {
                         }
                         else
                         {
-                            res.status(200).send({ code: '4',listProduct:listProduct});
+                            if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
+                            {
+                                Product.find({}).sort({date:-1})
+                                .clone()
+                                .limit(perPage)
+                                .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                                    var arr = product.map(p =>{
+                                        listProduct.push({
+                                            id:p._id,
+                                            name:p.name,
+                                            price:p.price,
+                                            date:p.date,
+                                            category:p.category,
+                                            image:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        })
+                                    })
+                                    Product.count({}).exec().then((count) => {
+                                        if(count)
+                                        {
+                                            let totalPages = []
+                                            let pageTotal = Math.ceil(count / perPage)
+                                            let currentpage = parseInt(body.currentpages) + 1
+                                
+                                            let prevPage = currentpage <= 1 ? 1 : currentpage - 1
+                                            let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
+                                
+                                            let prevP = 1;
+                                            let nextP = pageTotal;
+                                            for(var i = 1;i<=pageTotal;i++)
+                                            {
+                                                totalPages.push(i)
+                                            }
+                                            res.status(200).send({ code: '5',listProduct:listProduct,
+                                            currentpage,
+                                            totalPages,
+                                            prevPage,
+                                            nextPage,
+                                            prevP,
+                                            nextP,
+                                            pageTotal
+                                            });
+                                        }
+                                    })
+                                })
+                            }
+                            else
+                            {
+                                res.status(200).send({ code: '6',listProduct:listProduct});
+                            }
                         }
                     })
                 })
@@ -1217,16 +2025,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '5',listProduct:listProduct,
                             currentpage,
@@ -1277,16 +2122,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = body.currentpages
+                            let currentpage = body.currentpages + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '2',listProduct:listProduct,
                             currentpage,
@@ -1333,16 +2215,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = body.currentpages
+                            let currentpage = parseInt(body.currentpages)  + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '3',listProduct:listProduct,
                             currentpage,
@@ -1389,16 +2308,53 @@ router.post('/page/:page', function(req, res, next) {
                         {
                             let totalPages = []
                             let pageTotal = Math.ceil(count / perPage)
-                            let currentpage = parseInt(body.currentpages)
+                            let currentpage = parseInt(body.currentpages) + 1
                 
                             let prevPage = currentpage <= 1 ? 1 : currentpage - 1
                             let nextPage = currentpage >= pageTotal ? pageTotal : currentpage + 1
                 
                             let prevP = 1;
                             let nextP = pageTotal;
-                            for(var i = 1;i<=pageTotal;i++)
+                            if (pageTotal <= 6) {
+                                for(var i = 1;i<=pageTotal;i++)
+                                {
+                                    totalPages.push(i)
+                                }
+                            }
+                            else
                             {
-                                totalPages.push(i)
+                                totalPages.push(1)
+
+                                if (currentpage > 3) {
+                                    totalPages.push("...");
+                                }
+
+                                if (currentpage == pageTotal) {
+                                    totalPages.push(currentpage - 2);
+                                }
+
+                                if (currentpage > 2) {
+                                    totalPages.push(currentpage - 1);
+                                }
+
+                                if (currentpage != 1 && currentpage != pageTotal) {
+                                    totalPages.push(currentpage);
+                                }
+
+                                if (currentpage < pageTotal - 1) {
+                                    totalPages.push(currentpage + 1);
+                                }
+                            
+                                // special case where first page is selected...
+                                if (currentpage == 1) {
+                                    totalPages.push(currentpage + 2);
+                                }
+                            
+                                //print "..." if currentPage is < lastPage -2
+                                if (currentpage < pageTotal - 2) {
+                                    totalPages.push("...");
+                                }
+                                totalPages.push(pageTotal)
                             }
                             res.status(200).send({ code: '5',listProduct:listProduct,
                             currentpage,

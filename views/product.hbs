@@ -42,8 +42,8 @@
 			<div id="top-header">
 				<div class="container">
 					<ul class="header-links pull-left">
-						<li><a href="#"><i class="fa fa-phone"></i> +84-932069673</a></li>
-						<li><a href="#"><i class="fa fa-envelope-o"></i> nguyennghia25082001@email.com</a></li>
+						<li><a href="#"><i class="fa fa-phone"></i> +84-932069XXX</a></li>
+						<li><a href="#"><i class="fa fa-envelope-o"></i> nguyennghiaXXXXX@email.com</a></li>
 						<li><a href="#"><i class="fa fa-map-marker"></i> Binh Chanh TPHCM</a></li>
 					</ul>
 					<ul class="header-links pull-right">
@@ -255,13 +255,25 @@
 									<h2 class="product-name">{{{this.name}}}</h2>
 									<div>
 										<div class="product-rating">
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star-o"></i>
+											{{#repeat 1 5}}
+												{{#if (lte this ../../integerPart)}}
+													{{#if ../../decimalPart}}
+														{{#if (lt this ../../integerPart)}}
+															<i class="fa fa-star"></i>
+														{{else}}
+															{{#if (gt ../../decimalPart 0.0)}}
+																<i class="fa fa-star-half-o"></i>
+															{{else}}
+																<i class="fa fa-star"></i>
+															{{/if}}
+														{{/if}}
+													{{/if}}
+												{{else}}
+													<i class="fa fa-star-o"></i>
+												{{/if}}
+											{{/repeat}}
 										</div>
-										<a class="review-link" href="#">10 Review(s) | Add your review</a>
+										<a class="review-link" id="review-link-comment" onclick="scrollReview(this)">{{../count}} Review(s) | Add your review</a>
 									</div>
 									<div>
 										<h3 class="product-price">${{addDos this.price}} <del class="product-old-price">$990.00</del></h3>
@@ -312,7 +324,7 @@
 									<ul class="tab-nav">
 										<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
 										<li><a data-toggle="tab" href="#tab2">Details</a></li>
-										<li><a data-toggle="tab" href="#tab3">Reviews (3)</a></li>
+										<li><a data-toggle="tab" href="#tab3">Reviews ({{../count}})</a></li>
 									</ul>
 									<!-- /product tab nav -->
 
@@ -346,82 +358,122 @@
 												<div class="col-md-3">
 													<div id="rating">
 														<div class="rating-avg">
-															<span>4.5</span>
+															<span>{{../averageRating}}</span>
 															<div class="rating-stars">
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star"></i>
-																<i class="fa fa-star-half-o"></i>
+																{{#repeat 1 5}}
+																	{{#if (lte this ../../integerPart)}}
+																		{{#if ../../decimalPart}}
+																			{{#if (lt this ../../integerPart)}}
+																				<i class="fa fa-star"></i>
+																			{{else}}
+																				{{#if (gt ../../decimalPart 0.0)}}
+																					<i class="fa fa-star-half-o"></i>
+																				{{else}}
+																					<i class="fa fa-star"></i>
+																				{{/if}}
+																			{{/if}}
+																		{{/if}}
+																	{{else}}
+																		<i class="fa fa-star-o"></i>
+																	{{/if}}
+																{{/repeat}}
 															</div>
 														</div>
 														<ul class="rating">
-															<li>
-																<div class="rating-stars">
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																</div>
-																<div class="rating-progress">
-																	<div style="width: 80%;"></div>
-																</div>
-																<span class="sum">3</span>
-															</li>
-															<li>
-																<div class="rating-stars">
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star-o"></i>
-																</div>
-																<div class="rating-progress">
-																	<div style="width: 60%;"></div>
-																</div>
-																<span class="sum">2</span>
-															</li>
-															<li>
-																<div class="rating-stars">
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																</div>
-																<div class="rating-progress">
-																	<div></div>
-																</div>
-																<span class="sum">0</span>
-															</li>
-															<li>
-																<div class="rating-stars">
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																</div>
-																<div class="rating-progress">
-																	<div></div>
-																</div>
-																<span class="sum">0</span>
-															</li>
-															<li>
-																<div class="rating-stars">
-																	<i class="fa fa-star"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																	<i class="fa fa-star-o"></i>
-																</div>
-																<div class="rating-progress">
-																	<div></div>
-																</div>
-																<span class="sum">0</span>
-															</li>
-														</ul>
+															{{#each ../totalRating}}
+																{{#compare this.rating 'eq' '5'}}
+																	<li>
+																		<div class="rating-stars">
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																		</div>
+																		<div class="rating-progress">
+																			{{#if this.percent}}
+																				<div style="width: {{this.percent}}%;"></div>
+																			{{else}}
+																				<div></div>
+																			{{/if}}
+																		</div>
+																		<span class="sum">{{this.count}}</span>
+																	</li>
+																{{/compare}}
+																{{#compare this.rating 'eq' '4'}}
+																	<li>
+																		<div class="rating-stars">
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star-o"></i>
+																		</div>
+																		<div class="rating-progress">
+																			{{#if this.percent}}
+																				<div style="width: {{this.percent}}%;"></div>
+																			{{else}}
+																				<div></div>			
+																			{{/if}}															</div>
+																		<span class="sum">{{this.count}}</span>
+																	</li>
+																{{/compare}}
+																{{#compare this.rating 'eq' '3'}}
+																	<li>
+																		<div class="rating-stars">
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																		</div>
+																		<div class="rating-progress">
+																			{{#if this.percent}}
+																				<div style="width: {{this.percent}}%;"></div>
+																			{{else}}
+																				<div></div>
+																			{{/if}}																</div>
+																		<span class="sum">{{this.count}}</span>
+																	</li>
+																{{/compare}}
+																{{#compare this.rating 'eq' '2'}}
+																	<li>
+																		<div class="rating-stars">
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																		</div>
+																		<div class="rating-progress">
+																			{{#if this.percent}}
+																				<div style="width: {{this.percent}}%;"></div>
+																			{{else}}
+																				<div></div>
+																			{{/if}}																</div>
+																		<span class="sum">{{this.count}}</span>
+																	</li>
+																{{/compare}}
+																{{#compare this.rating 'eq' '1'}}
+																	<li>
+																		<div class="rating-stars">
+																			<i class="fa fa-star"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																			<i class="fa fa-star-o"></i>
+																		</div>
+																		<div class="rating-progress">
+																			{{#if this.percent}}
+																				<div style="width: {{this.percent}}%;"></div>
+																			{{else}}
+																				<div></div>
+																			{{/if}}																	</div>
+																		<span class="sum">{{this.count}}</span>
+																	</li>
+																{{/compare}}
+															{{/each}}
+															</ul>
 													</div>
 												</div>
 												<!-- /Rating -->
@@ -429,62 +481,58 @@
 												<!-- Reviews -->
 												<div class="col-md-6">
 													<div id="reviews">
-														<ul class="reviews">
-															<li>
-																<div class="review-heading">
-																	<h5 class="name">John</h5>
-																	<p class="date">27 DEC 2018, 8:0 PM</p>
-																	<div class="review-rating">
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
+														<ul class="reviews" id="row-list-review">
+															{{#each ../listReview}}
+																<li>
+																	<div class="review-heading">
+																		<h5 class="name">{{{this.userReview}}}</h5>
+																		<p class="date">{{{this.date}}}</p>
+																		<div class="review-rating">
+																			{{#repeat 1 5}}
+																				{{#if (lte this ../rating)}}
+																				<i class="fa fa-star"></i>
+																				{{else}}
+																				<i class="fa fa-star-o"></i>
+																				{{/if}}
+																			{{/repeat}}
+																		</div>
 																	</div>
-																</div>
-																<div class="review-body">
-																	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-																</div>
-															</li>
-															<li>
-																<div class="review-heading">
-																	<h5 class="name">John</h5>
-																	<p class="date">27 DEC 2018, 8:0 PM</p>
-																	<div class="review-rating">
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star-o empty"></i>
+																	<div class="review-body">
+																		<p>{{{this.reviewPost}}}</p>
 																	</div>
-																</div>
-																<div class="review-body">
-																	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-																</div>
-															</li>
-															<li>
-																<div class="review-heading">
-																	<h5 class="name">John</h5>
-																	<p class="date">27 DEC 2018, 8:0 PM</p>
-																	<div class="review-rating">
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star"></i>
-																		<i class="fa fa-star-o empty"></i>
-																	</div>
-																</div>
-																<div class="review-body">
-																	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
-																</div>
-															</li>
+																</li>
+															{{/each}}
 														</ul>
-														<ul class="reviews-pagination">
-															<li class="active">1</li>
-															<li><a href="#">2</a></li>
-															<li><a href="#">3</a></li>
-															<li><a href="#">4</a></li>
-															<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+														<ul class="reviews-pagination" id="pagination-review">
+															{{#compare ../currentpage 'noteq' 1}}
+																{{#if ../prevP}}
+																	<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></a></li>
+																{{/if}}
+																{{#if ../prevPage}}
+																	<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></a></li>
+																{{/if}}
+															{{/compare}}
+															{{#each ../totalPages}}
+																	{{#compare this 'eq' ../../currentpage}}
+																		<li onclick="switchPageReview(this)" class="active">{{this}}</li>
+																	{{else}}
+																		{{#isNumber this}}
+																			<li onclick="switchPageReview(this)">
+																				{{this}}
+																			</li>
+																		{{else}}
+																			<div class="" style="display: inline-block;margin: 0 10px;">{{this}}</div>
+																		{{/isNumber}}
+																	{{/compare}}
+															{{/each}}
+															{{#compare ../currentpage 'noteq' ../nextP}}
+																{{#if ../nextPage}}
+																	<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></a></li>
+																{{/if}}
+																{{#if ../nextP}}
+																	<li onclick="switchPageReview(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></a></li>
+																{{/if}}
+															{{/compare}}
 														</ul>
 													</div>
 												</div>
@@ -493,21 +541,27 @@
 												<div class="col-md-3">
 													<div id="review-form">
 														<form class="review-form" id="review-form-user" method="POST" action="">
-															<input class="input" type="text" placeholder="Your Name">
-															<input class="input" type="email" placeholder="Your Email">
-															<textarea class="input" placeholder="Your Review"></textarea>
-															<div class="input-rating">
-																<span>Your Rating: </span>
-																<div class="stars">
-																	<input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
-																	<input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
-																	<input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
-																	<input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
-																	<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
-																</div>
-															</div>
-															<button id="submit-review" class="primary-btn">Submit</button>
-															<div class='alert alert-dismissible' id="review" role='alert'>
+															{{#if ../infoUser}}
+																{{#each ../infoUser}}
+																	<i class="fa fa-user-o" style="margin-bottom: 15px;"></i> {{{this.fullname}}}
+																	<textarea class="input" id="review-input" placeholder="Your Review"></textarea>
+																	<div class="input-rating" id="rating-container" >
+																		<span>Your Rating: </span>
+																		<div class="stars">
+																			<input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
+																			<input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
+																			<input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
+																			<input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
+																			<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
+																		</div>
+																	</div>
+																	<button id="submit-review" class="primary-btn">Submit</button>
+																	<div class='alert alert-dismissible' id="review" style="margin-top: 15px;" role='alert'>
+																{{/each}}
+															{{else}}
+																<p><strong>Sign Up to comment </strong></p>
+																<a href="/user/login">Click here</a>
+															{{/if}}
 														</form>
 													</div>
 												</div>

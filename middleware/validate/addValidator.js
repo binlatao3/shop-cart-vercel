@@ -1,10 +1,22 @@
 const {check}  = require('express-validator')
-const path = require('path')
+const path = require('path');
+const Product = require('../../models/Product');
 
 module.exports = [
     check('name')
     .exists().withMessage('Please enter valid product name')
-    .notEmpty().withMessage('Please enter product name'),
+    .notEmpty().withMessage('Please enter product name')
+    .custom((value, { req }) => {
+        return Product.findOne({name: value}).then(user => {
+            if (user) {
+                return Promise.reject('Product already exist');
+            }
+            else
+            {
+                return true
+            }
+        });
+    }),
 
     check('number')
     .exists().withMessage('Please enter number')
