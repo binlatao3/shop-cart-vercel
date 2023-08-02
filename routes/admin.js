@@ -320,7 +320,8 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
                 path: myImage[0].path,
                 name: myImage[0].originalname,
                 imageType: myImage[0].mimetype
-            }
+            },
+            totalSold:0
         })
         product.save().then((p)=>{
             let newRating = new Rating({

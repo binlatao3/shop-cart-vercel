@@ -19,7 +19,6 @@ const reduceOp = function(args, reducer){
 const hbs = exphbs.create({
     helpers: {
       compare: function(value1,operator,value2,options) {
-          
           var operators = {
               'eq': function(l,r) { return l === r; },
               'noteq': function(l,r) { return l !== r; },

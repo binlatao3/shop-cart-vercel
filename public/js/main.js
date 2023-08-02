@@ -619,6 +619,9 @@ window.addEventListener('load', function () {
 	var priceMax
 	var priceMin
 	var state
+	var sortBy
+	var perPage
+	var currentpages = $('ul#pagination-product > li.active').text()
 	$("#type-product input[type=checkbox]").prop( "checked", false );
 	$("#type-product input[type=checkbox]").change(function() { 
 		if($(this).is(":checked")) { 
@@ -639,7 +642,9 @@ window.addEventListener('load', function () {
 			listType = listType.filter(function(e) { return e !== type })
 			state = 0
 		}
-		filter_product({listType,state,priceMin,priceMax})
+		perPage = $("select#perPage.input-select").val()
+		sortBy = $("select#sortPage.input-select").val()
+		filter_product({listType,state,priceMin,priceMax,sortBy,perPage,currentpages})
 	}); 
 	
 	$('.input-number').find('input#price-min').val("")
@@ -681,9 +686,24 @@ window.addEventListener('load', function () {
 		}
 		if(error.length == 0)
 		{
-			filter_product({listType,state,priceMin,priceMax})
+			perPage = $("select#perPage.input-select").val()
+			sortBy = $("select#sortPage.input-select").val()
+			filter_product({listType,state,priceMin,priceMax,sortBy,perPage,currentpages})
 		}
 	})
+
+	$("select#sortPage.input-select").change(function(e) {
+		sortBy = e.target.value
+		perPage = $("select#perPage.input-select").val()
+		filter_product({listType,state,priceMin,priceMax,sortBy,perPage,currentpages})
+	})
+
+	$("select#perPage.input-select").change(function(e) {
+		perPage = e.target.value
+		sortBy = $("select#sortPage.input-select").val()
+		filter_product({listType,state,priceMin,priceMax,sortBy,perPage,currentpages})
+	})
+	
 
 	// $.ajax({ 
 	// 	type: "GET", 
@@ -704,26 +724,29 @@ function scrollReview()
 	var tab3Link = document.querySelector('.tab-nav li:nth-child(3) a');
     var isTab3Active = false;
 
-	reviewLink.addEventListener('click', function(event) {
-		event.preventDefault();
-
-		if (isTab3Active) {
-            // Kéo xuống review-form nếu đã switch qua tab 3
-            tab3Link.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            // Chuyển sang tab 3
-            tab3Link.click();
-
-            // Xác định khi tab 3 đã hoàn thành hiệu ứng chuyển đổi
-            tab3Link.addEventListener('transitionend', function() {
-                // Kéo xuống review-form
-                tab3Link.scrollIntoView({ behavior: 'smooth' });
-            }, { once: true });
-
-            // Đánh dấu là đã switch qua tab 3
-            isTab3Active = true;
-        }
-    });
+	if(reviewLink != undefined)
+	{
+		reviewLink.addEventListener('click', function(event) {
+			event.preventDefault();
+	
+			if (isTab3Active) {
+				// Kéo xuống review-form nếu đã switch qua tab 3
+				tab3Link.scrollIntoView({ behavior: 'smooth' });
+			} else {
+				// Chuyển sang tab 3
+				tab3Link.click();
+	
+				// Xác định khi tab 3 đã hoàn thành hiệu ứng chuyển đổi
+				tab3Link.addEventListener('transitionend', function() {
+					// Kéo xuống review-form
+					tab3Link.scrollIntoView({ behavior: 'smooth' });
+				}, { once: true });
+	
+				// Đánh dấu là đã switch qua tab 3
+				isTab3Active = true;
+			}
+		});
+	}
 }
 function switchPage(e)
 {
@@ -912,21 +935,26 @@ function switchPage(e)
 
 	priceMax = $('.input-number').find('input#price-max').val()
 
+	perPage = $("select#perPage.input-select").val()
+	sortBy = $("select#sortPage.input-select").val()
+
 	$.ajax ({
 		type: "POST",
 		url: `/store/page/${nextpages}`,
 		cache: false,
 		data: { 'currentpages': currentpages-1, 'nextpages': nextpages-1,'totalpages': pageTotal,'listType':listType,
-		'state':state,'priceMin':priceMin,'priceMax':priceMax
+		'state':state,'priceMin':priceMin,'priceMax':priceMax,'perPage':perPage,'sortBy':sortBy
 		},
 		success: function(data) {
 			console.log(data)
 			if(data.code === '1')
 			{
 				$('#row-list-product').html("")
-				var arr = data.listProduct.sort(function(a,b){
+				var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+					return b.totalSold - a.totalSold;
+				}) : data.listProduct.sort(function(a,b){
 					return new Date(b.date) - new Date(a.date);
-				}).map(p =>{
+				})).map(p =>{
 					$('#row-list-product').append(`
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
@@ -953,6 +981,7 @@ function switchPage(e)
 										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 									</div>
+									<span class="totalSold">${p.totalSold} sold</span>
 								</div>
 								<div id="store-list" class="add-to-cart">
 									<button class="add-to-cart-btn" data-productName="${p.name}" 
@@ -969,9 +998,11 @@ function switchPage(e)
 			else if(data.code === '2')
 			{
 				$('#row-list-product').html("")
-				var arr = data.listProduct.sort(function(a,b){
+				var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+					return b.totalSold - a.totalSold;
+				}) : data.listProduct.sort(function(a,b){
 					return new Date(b.date) - new Date(a.date);
-				}).map(p =>{
+				})).map(p =>{
 					$('#row-list-product').append(`
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
@@ -998,6 +1029,7 @@ function switchPage(e)
 										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 									</div>
+									<span class="totalSold">${p.totalSold} sold</span>
 								</div>
 								<div class="add-to-cart">
 									<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
@@ -1014,9 +1046,11 @@ function switchPage(e)
 			else if(data.code === '3')
 			{
 				$('#row-list-product').html("")
-				var arr = data.listProduct.sort(function(a,b){
+				var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+					return b.totalSold - a.totalSold;
+				}) : data.listProduct.sort(function(a,b){
 					return new Date(b.date) - new Date(a.date);
-				}).map(p =>{
+				})).map(p =>{
 					$('#row-list-product').append(`
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
@@ -1043,6 +1077,7 @@ function switchPage(e)
 										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 									</div>
+									<span class="totalSold">${p.totalSold} sold</span>
 								</div>
 								<div class="add-to-cart">
 									<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
@@ -1059,9 +1094,12 @@ function switchPage(e)
 			else if(data.code === '5')
 			{
 				$('#row-list-product').html("")
-				var arr = data.listProduct.sort(function(a,b){
+				var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+					return b.totalSold - a.totalSold;
+				}) : data.listProduct.sort(function(a,b){
 					return new Date(b.date) - new Date(a.date);
-				}).map(p =>{
+				})).map(p =>{
+					console.log(p)
 					$('#row-list-product').append(`
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
@@ -1088,6 +1126,7 @@ function switchPage(e)
 										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 									</div>
+									<span class="totalSold">${p.totalSold} sold</span>
 								</div>
 								<div class="add-to-cart">
 									<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
@@ -1304,9 +1343,12 @@ function filter_product(value)
 			if(data.listProduct.length)
 			{
 				$('#row-list-product').html("")
-				var arr = data.listProduct.sort(function(a,b){
+				$('.store-qty').text(`Showing ${data.perPage}-100 products`)
+				var arr = (data.sortBy === 1 ? data.listProduct.sort(function(a,b){
+					return b.totalSold - a.totalSold;
+				}) : data.listProduct.sort(function(a,b){
 					return new Date(b.date) - new Date(a.date);
-				}).map(p =>{
+				})).map(p =>{
 					$('#row-list-product').append(`
 						<div class="col-md-4 col-xs-6">
 							<div class="product">
@@ -1333,6 +1375,7 @@ function filter_product(value)
 										<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 										<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 									</div>
+									<span class="totalSold">${p.totalSold} sold</span>
 								</div>
 								<div class="add-to-cart">
 									<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
@@ -1345,38 +1388,32 @@ function filter_product(value)
 						</div>
 					`)
 				})
-				if(data.currentpage - 1 === 0)
+
+				$('ul#pagination-product').html("")
+				for(var i = 1;i <= data.totalPages .length;i++)
 				{
-					$('ul#pagination-product').html("")
-					for(var i = 0;i < data.totalPages.length;i++)
-					{
-						if(i === data.currentpage - 1)
-						{
-							$('ul#pagination-product').append(`
-								<li onclick="switchPage(this)" class="active">${data.totalPages[i]}</li>
-							`)
-						}
-						else
-						{
-							$('ul#pagination-product').append(`
-								<li onclick="switchPage(this)" >${data.totalPages[i]}</li>
-							`)
-						}
-					}
-					if(data.pageTotal > 1)
+					if(i === data.currentpage)
 					{
 						$('ul#pagination-product').append(`
-						<li class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+							<li onclick="switchPage(this)" class="active">${data.totalPages[i-1]}</li>
 						`)
+					}
+					else
+					{
 						$('ul#pagination-product').append(`
-						<li class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+							<li onclick="switchPage(this)" >${data.totalPages[i-1]}</li>
 						`)
 					}
 				}
-			}
-			else
-			{
-
+				if(data.pageTotal > 1)
+				{
+					$('ul#pagination-product').append(`
+					<li class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+					`)
+					$('ul#pagination-product').append(`
+					<li class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+					`)
+				}
 			}
 		}
 	});
@@ -1397,6 +1434,7 @@ function quickAddCart(e)
 			data: {"productName":productName,"productPrice":productPrice,"productNumber":productNumber,action:"add"}, 
 			cache: false,
 			success: function(data){
+				console.log(data)
 				if(data.code === '3')
 				{
 					productName = ''
@@ -1447,14 +1485,19 @@ function quickAddCart(e)
 						$('.alert-dismissible').removeClass('alert-success')
 						$(this).empty(); 
 					});
-					let infoProduct = $('div.product-body').find(`h3#product-name-dropdown:contains(${data.productName})`)
-					if(infoProduct.length > 0)
-					{
-						infoProduct.next().find('span#qty-dropdown').text(`${data.productNumber}x`)
-					}
-					$('#qty-dropdown').text(`${data.totalNumber}`)
-					$('#cart-summary-totalNumber').text(`${data.totalNumber} Item(s) selected`)
-					$('#cart-summary-totalPrice').text(`SUBTOTAL: $${addDos(data.totalPrice)}`)
+					let infoProduct = $(`h3#product-name-dropdown.product-name`)
+					infoProduct.each(function () {
+						if($(this).text()== data.productName)
+						{
+							if($(this).length > 0)
+							{
+								$(this).next().find('span#qty-dropdown').text(`${data.productNumber}x`)
+							}
+							$('#qty-dropdown').text(`${data.totalNumber}`)
+							$('#cart-summary-totalNumber').text(`${data.totalNumber} Item(s) selected`)
+							$('#cart-summary-totalPrice').text(`SUBTOTAL: $${addDos(data.totalPrice)}`)
+						}
+					})
 				}
 				else if(data.code === '5')
 				{
@@ -1559,22 +1602,27 @@ function triggerClick(e)
 		data: {"productName":productName,action:"delete"}, 
 		cache: false,
 		success: function(data){
-			let childCart = $(`h3#product-name-dropdown.product-name:contains(${data.productName})`)
-			childCart.parent().parent().remove()
-			$('#qty-dropdown').text(`${data.totalNumber}`)
-			$('#cart-summary-totalNumber').text(`${data.totalNumber} Item(s) selected`)
-			$('#cart-summary-totalPrice').text(`SUBTOTAL: $${addDos(data.totalPrice)}`)
-			if($('.order-col').length)
-			{
-				$('.order-col').each(function(i) {
-					if ($(this).attr('data-name') == productName) {
-						$(this).remove()
-						let productPrice = parseInt($(this).find('div#price-checkout').text())
-						let totalPrice = $('.order-total')
-						totalPrice.text(addDos(data.totalPrice))
+			let childCart = $(`h3#product-name-dropdown.product-name`)
+			childCart.each(function () {
+				if($(this).text()== data.productName)
+				{
+					$(this).parent().parent().remove()
+					$('#qty-dropdown').text(`${data.totalNumber}`)
+					$('#cart-summary-totalNumber').text(`${data.totalNumber} Item(s) selected`)
+					$('#cart-summary-totalPrice').text(`SUBTOTAL: $${addDos(data.totalPrice)}`)
+					if($('.order-col').length)
+					{
+						$('.order-col').each(function() {
+							if ($(this).attr('data-name') == productName) {
+								$(this).remove()
+								let productPrice = parseInt($(this).find('div#price-checkout').text())
+								let totalPrice = $('.order-total')
+								totalPrice.text(addDos(data.totalPrice))
+							}
+						});
 					}
-				});
-			}
+				}
+			});
 			if($('#cart-list-dropdown').children().length === 0)
 			{
 				$('div#qty-dropdown.qty').remove()

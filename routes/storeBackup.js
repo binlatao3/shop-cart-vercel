@@ -291,7 +291,7 @@ router.get('/',(req,res,next) => {
                 }
                 else
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1}).clone()
+                    Product.find({}).sort({totalSold:-1}).clone()
                     .limit(perPage)
                     .skip(perPage * page)
                     .then((product) =>{
@@ -599,7 +599,7 @@ router.post('/', function(req, res, next) {
                 if(body.state === '1')
                 {
                     
-                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * page).then((product) =>{
@@ -687,7 +687,7 @@ router.post('/', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * page).then((product) =>{
@@ -787,7 +787,7 @@ router.post('/', function(req, res, next) {
                 }
                 else if(body.state === '0')
                 {
-                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * page).then((product) =>{
@@ -875,7 +875,7 @@ router.post('/', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * page).then((product) =>{
@@ -983,7 +983,7 @@ router.post('/', function(req, res, next) {
                 if(body.state === '1')
                 {
                     console.log("2313")
-                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * page).then((product) =>{
@@ -1080,7 +1080,7 @@ router.post('/', function(req, res, next) {
                 else if(body.state === '0')
                 {
                     console.log("HEFE")
-                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * page).then((product) =>{
@@ -1177,7 +1177,7 @@ router.post('/', function(req, res, next) {
                 else
                 {
                     console.log("TEEETE")
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * page).then((product) =>{
@@ -1959,7 +1959,7 @@ router.post('/', function(req, res, next) {
         {
             if(body.priceMin && body.priceMax)
             {
-                Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                 .clone()
                 .limit(perPage)
                 .skip(perPage * page).then((product) =>{
@@ -2047,7 +2047,7 @@ router.post('/', function(req, res, next) {
                         {
                             if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                             {
-                                Product.find({}).sort({totalSold: -1, _id: -1})
+                                Product.find({}).sort({totalSold:-1})
                                 .clone()
                                 .limit(perPage)
                                 .skip(perPage * page).then((product) =>{
@@ -2148,7 +2148,7 @@ router.post('/', function(req, res, next) {
             }
             else
             {
-                Product.find({}).sort({totalSold: -1, _id: -1})
+                Product.find({}).sort({totalSold:-1})
                 .clone()
                 .limit(perPage)
                 .skip(perPage * page).then((product) =>{
@@ -2675,7 +2675,7 @@ router.get('/page/:page',(req,res,next) => {
     })
 })
 
-router.post('/page/:page', function(req, res, next) {   
+router.post('/page/:page', function(req, res, next) {
     var username = req.session.user
     var body = req.body
     var listProduct = []
@@ -2710,7 +2710,7 @@ router.post('/page/:page', function(req, res, next) {
                 if(body.state === '1')
                 {
                     
-                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -2798,7 +2798,7 @@ router.post('/page/:page', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -2898,7 +2898,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else if(body.state === '0')
                 {
-                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType },price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -2986,7 +2986,7 @@ router.post('/page/:page', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -3086,7 +3086,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -3186,7 +3186,7 @@ router.post('/page/:page', function(req, res, next) {
                 if(body.state === '1')
                 {
                     
-                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -3282,7 +3282,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else if(body.state === '0')
                 {
-                    Product.find({category:{ $in : body.listType }}).sort({totalSold: -1, _id: -1})
+                    Product.find({category:{ $in : body.listType }}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -3378,7 +3378,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4255,7 +4255,7 @@ router.post('/page/:page', function(req, res, next) {
                 if(body.state === '1')
                 {
                     
-                    Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4343,7 +4343,7 @@ router.post('/page/:page', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({}).sort({totalSold: -1, _id: -1})
+                                    Product.find({}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4442,7 +4442,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else if(body.state === '0')
                 {
-                    Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold: -1, _id: -1})
+                    Product.find({price : { $gt :  body.priceMin, $lt : body.priceMax}}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4530,7 +4530,7 @@ router.post('/page/:page', function(req, res, next) {
                             {
                                 if(body.priceMin == '0' && body.priceMax == '0' || !body.priceMin || !body.priceMax)
                                 {
-                                    Product.find({}).sort({totalSold: -1, _id: -1})
+                                    Product.find({}).sort({totalSold:-1})
                                     .clone()
                                     .limit(perPage)
                                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4630,7 +4630,7 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4727,10 +4727,12 @@ router.post('/page/:page', function(req, res, next) {
             }
             else
             {
+                console.log("YESS")
+
                 if(body.state === '1')
                 {
                     
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
                     .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
@@ -4826,10 +4828,10 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else if(body.state === '0')
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
-                    .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                    .skip(perPage * (parseInt(body.nextpages) + 1)).then((product) =>{
                         var arr = product.map(p =>{
                             listProduct.push({
                                 id:p._id,
@@ -4922,10 +4924,10 @@ router.post('/page/:page', function(req, res, next) {
                 }
                 else
                 {
-                    Product.find({}).sort({totalSold: -1, _id: -1})
+                    Product.find({}).sort({totalSold:-1})
                     .clone()
                     .limit(perPage)
-                    .skip(perPage * (parseInt(body.nextpages))).then((product) =>{
+                    .skip(perPage * (parseInt(body.currentpages))).then((product) =>{
                         var arr = product.map(p =>{
                             listProduct.push({
                                 id:p._id,

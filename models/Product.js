@@ -26,6 +26,9 @@ const product = new mongoose.Schema({
         path:String,
         name:String,
         imageType:String
+    },
+    totalSold:{
+        type:Number
     }
 })
 

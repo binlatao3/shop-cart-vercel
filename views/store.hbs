@@ -182,12 +182,8 @@
 				<div id="responsive-nav">
 					<!-- NAV -->
 					<ul class="main-nav nav navbar-nav">
-						<li class="active"><a href="#">Home</a></li>
-						<li><a href="/store">Store</a></li>
-						<li><a href="#">Laptops</a></li>
-						<li><a href="#">Smartphones</a></li>
-						<li><a href="#">Cameras</a></li>
-						<li><a href="#">Accessories</a></li>
+						<li><a href="/">Home</a></li>
+						<li class="active"><a href="/store">Store</a></li>
 					</ul>
 					<!-- /NAV -->
 				</div>
@@ -274,17 +270,39 @@
 							<div class="store-sort">
 								<label>
 									Sort By:
-									<select class="input-select">
-										<option value="0">Popular</option>
-										<option value="1">Position</option>
+									<select class="input-select" id="sortPage">
+										{{#compare sortBy 'eq' 0}}
+											<option selected value="0">Newest</option>
+											<option value="1">Popular</option>
+										{{else}}
+											{{#compare sortBy 'eq' 1}}
+												<option value="0">Newest</option>
+												<option selected value="1">Popular</option>
+											{{else}}
+												<option selected value="0">Newest</option>
+												<option value="1">Popular</option>
+											{{/compare}}
+										{{/compare}}
 									</select>
 								</label>
 
 								<label>
 									Show:
-									<select class="input-select">
-										<option value="0">20</option>
-										<option value="1">50</option>
+									<select class="input-select" id="perPage">
+										{{#if perPage}}
+											{{#compare perPage 'eq' 2}}
+												<option selected value="0">20</option>
+												<option value="1">50</option>
+											{{else}}
+												{{#compare perPage 'eq' 5}}
+													<option value="0">20</option>
+													<option selected value="1">50</option>
+												{{else}}
+													<option selected value="0">20</option>
+													<option value="1">50</option>
+												{{/compare}}
+											{{/compare}}
+										{{/if}}
 									</select>
 								</label>
 							</div>
@@ -324,6 +342,7 @@
 												<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
 												<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 											</div>
+											<span class="totalSold">{{this.totalSold}} sold</span>
 										</div>
 										<div class="add-to-cart">
 											<button id="store-list" class="add-to-cart-btn" data-productName="{{this.name}}" 
@@ -341,7 +360,11 @@
 
 						<!-- store bottom filter -->
 						<div class="store-filter clearfix">
-							<span class="store-qty">Showing 20-100 products</span>
+							{{#if perPage}}
+								<span class="store-qty">Showing {{perPage}}-100 products</span>
+							{{else}}
+								<span class="store-qty">Showing 20-100 products</span>
+							{{/if}}
 							<ul class="store-pagination" id="pagination-product">
 								{{#compare currentpage 'noteq' 1}}
 									{{#if prevP}}

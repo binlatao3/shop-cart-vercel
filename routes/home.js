@@ -4,7 +4,7 @@ const Product = require('../models/Product')
 const getTime = require('../public/js/getTime')
 const User = require('../models/User')
 const userCart = require('../models/userCart')
-
+const getData = require('./getData')
 const checkUser = require('../middleware/auth/checkUser')
 
 router.get('/',(req,res,next) => {
@@ -53,7 +53,8 @@ router.get('/',(req,res,next) => {
                                 path:c.image.path,
                                 name:c.image.name,
                                 imageType:c.image.imageType
-                            }
+                            },
+                            totalSold:c.totalSold
                         })
                         newPhone.sort(function(a,b){
                             return new Date(b.date) - new Date(a.date);
@@ -98,30 +99,22 @@ router.get('/',(req,res,next) => {
                     userCart.findOne({username:user}).then((c) =>{
                         if(c)
                         {
-                            let totalPrice = c.carts.reduce((accum,item) => accum + item.productPrice * item.productNumber, 0)
-                            let totalNumber = c.carts.reduce((accum,item) => accum + item.productNumber, 0)
-                            var arr = c.carts.map(ct => {
-                                infoProduct.push({
-                                    productName:ct.productName,
-                                    productNumber:ct.productNumber,
-                                    productPrice:ct.productPrice,
-                                    productImage:{
-                                        path:ct.productImage.path,
-                                        name:ct.productImage.name,
-                                        imageType:ct.productImage.imageType
-                                    }
+                            getData.getTotalPriceAndNumber(c.carts).then(result => {
+                                const { infoProduct, totalPrice, totalNumber } = result;
+        
+                                return res.render('index',{ 
+                                    infoUser:infoUser,
+                                    totalPrice:totalPrice,
+                                    totalNumber:totalNumber,
+                                    infoProduct:infoProduct,
+                                    newLap,
+                                    newPhone,
+                                    newCam
                                 })
                             })
-
-                            return res.render('index',{ 
-                                infoUser:infoUser,
-                                totalPrice:totalPrice,
-                                totalNumber:totalNumber,
-                                infoProduct:infoProduct,
-                                newLap,
-                                newPhone,
-                                newCam
-                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
                         }
                         else
                         {
@@ -258,7 +251,7 @@ router.post('/',function(req, res, next) {
                             let nameToDelete = c.carts.find(e => e.productName === body.productName).productName
                             let numberToDelete  = c.carts.find(e => e.productName === body.productName).productNumber 
                             let priceToDelete  = c.carts.find(e => e.productName === body.productName).productPrice
-
+                            console.log(nameToDelete,numberToDelete,priceToDelete)
                             userCart.updateOne({username:username},{ $pull: { carts: { productName: nameToDelete } } },{multi:true})
                             .then((cp) =>{
                                 res.status(200).send({ code: '0',message:'Delete success',productName:nameToDelete,totalNumber:totalNumber-numberToDelete
@@ -288,5 +281,6 @@ router.get('/user/logout', (req, res) => {
     req.session.destroy()
     res.redirect('/')
 })
+    
 
 module.exports = router
