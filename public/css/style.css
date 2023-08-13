@@ -2176,6 +2176,52 @@ p#notfound-item{
 .totalSold {
   display: flex;
 }
+
+
+.search-list {
+  position: absolute;
+  width: 515px;
+  background: #FFF;
+  -webkit-box-shadow: 0px 0px 0px 2px #E4E7ED;
+  box-shadow: 0px 0px 0px 2px #E4E7ED;
+  opacity: 1;
+  z-index: 99;
+  overflow-y: auto;
+  margin-left: 12px;
+  visibility: hidden;
+}
+
+.search-list .search-list-dropdown {
+  /* overflow-y: scroll; */
+  margin-top: 15px;
+  /* display: flex;
+  flex-direction: column; */
+}
+
+
+.search-list .product-widget {
+  border-bottom: 1px solid #E4E7ED;
+  padding: 0px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.not-found-item#not-found{
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+}
+
+.search-all-product#search-product{
+  text-align: center;
+  display: block;
+}
+
+
+.row#searchPage {
+  display: flex;
+  justify-content: center;
+}
 /*=========================================================
 	13 -> RESPONSIVE
 ===========================================================*/

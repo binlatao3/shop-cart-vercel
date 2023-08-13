@@ -594,7 +594,6 @@
 		scrollReview()
 	}
 	if (window.location.hash === "#_=_"){
-		console.log(window.location.hash)
 		// Check if the browser supports history.replaceState.
 		if (history.replaceState) {
 	
@@ -705,18 +704,112 @@ window.addEventListener('load', function () {
 	})
 	
 
-	// $.ajax({ 
-	// 	type: "GET", 
-	// 	url: window.location.href, 
-	// 	async: true,
-	// 	cache: false,
-	// 	success: function(data){
-	// 		console.log(data)
-	// 	}
-		
-	// })
+	$('#searchItem').val('0')
+	$("#searchItemText").val('')
+	$("#searchItemText").on('input',async function(i){
+		let category = $('#searchItem option:selected').text()
+		let item = i.target.value
+		if (item !== '') {
+			try {
+				searchItem({category,item})
+				// Tiếp tục xử lý với kết quả products ở đây
+			} catch (error) {
+				console.error(error);
+				// Xử lý lỗi ở đây
+			}
+		}
+		else
+		{
+			$('.search-list').css('visibility', 'hidden');
+			$('.search-list-dropdown').html("")
+		}
+	});
+
 	scrollReview()
+
+
 })
+
+function submitSearch()
+{
+	$("#searchBarForm").submit(function (event) {
+		event.preventDefault();
+		let idx = $('#searchItem option:selected').val();
+		let category = $('#searchItem option:selected').text();
+		let item = $("#searchItemText").val();
+		let searchInfor = {
+			category: category,
+			idx: idx,
+			item: item
+		}
+		window.location.href = `/search?item=${item}&category=${category}&idx=${idx}`;
+		// var formData = {value};
+		// $.ajax({ 
+		// 	type: "POST", 
+		// 	url: '/search', 
+		// 	async: true,
+		// 	data: searchInfor,
+		// 	success: function(data){
+		// 		window.location.href = `/search?item=${item}&category=${category}&idx=${idx}`;
+		// 	}
+		// })
+	});
+}
+
+function searchItem(value) {
+	$.ajax({ 
+		type: "POST", 
+		url: '/', 
+		async: true,
+		data: value,
+		cache: false,
+		success: function(data) {
+			if(data.code === '3')
+			{
+				console.log(data)
+				$('.search-list').css('visibility', 'visible');
+				$('.search-list-dropdown').html("")
+				let product = data.infoProduct
+				if(product.length === 0)
+				{
+					$('.search-list-dropdown').append(`
+						<div class="product-widget">
+							<h3 id="not-found" class="not-found-item">Not found products</h3>
+						</div>
+					`)
+				}
+				else
+				{
+					limitedProducts = product.slice(0, 2);
+					let remainingProducts = product.slice(2);
+					limitedProducts.map((item,idx) =>{
+						$('.search-list-dropdown').append(`
+							<div class="product-widget">
+								<div class="product-img">
+									<img src="${item.image.path}" alt="">
+								</div>
+								<div class="product-body">
+									<h3 id="product-name-dropdown" class="product-name"><a href="/product/${item.name}">${item.name}</a></h3>
+									<h4 id="product-price-dropdown" class="product-price">$${addDos(item.price)}</h4>
+								</div>
+							</div>
+						`)
+					})
+					if(product.length > 2)
+					{
+						let idx = $('#searchItem option:selected').val();
+						$('.search-list-dropdown').append(`
+						<div class="product-widget">
+							<h3 id="not-found" class="not-found-item">and ${remainingProducts.length} product</h3>
+							<a href="/search?item=${data.keyword}&category=${data.category}&idx=${idx}" id="search-product" class="search-all-product">(More here...)</a>
+						</div>
+						`)
+					}
+				}
+			}
+		}
+	})
+}
 
 function scrollReview()
 {
@@ -748,6 +841,7 @@ function scrollReview()
 		});
 	}
 }
+
 function switchPage(e)
 {
 	var currentpages = $('ul#pagination-product > li.active')
@@ -1140,6 +1234,369 @@ function switchPage(e)
 					`)
 				})
 			}
+		}
+	})
+	return false;
+}
+
+function switchPageSearch(e)
+{
+	var currentpages = $('ul#pagination-product > li.active')
+	var nextpages = $(e)
+
+	if(!$(e).hasClass("arrow-pagination"))
+	{
+		currentpages.removeClass('active')
+		nextpages.addClass('active')
+	}
+
+	var currentpages = parseInt(currentpages.text().trim())
+	var nextpages;
+	var pageTotal = parseInt(($('ul#pagination-product > li:not(".arrow-pagination")').last()).text())
+	
+	if(!$(e).text() && $(e).find('i[class*="fa-angle-left"]').length)
+	{
+		nextpages = currentpages - 1
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-left"]').length)
+	{
+		nextpages = 1
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
+		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-left"]').parent().remove()
+		$('ul#pagination-product').append(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-right"]').length)
+	{
+		nextpages = currentpages + 1
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
+	}
+	else if(!$(e).text() && $(e).find('i[class*="fa-angle-double-right"]').length)
+	{
+		nextpages = pageTotal
+		$(`ul#pagination-product > li:contains(${currentpages})`).removeClass('active')
+		$(`ul#pagination-product > li:contains(${nextpages})`).addClass('active')
+		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-product').prepend(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+	}
+	else
+	{
+		nextpages = parseInt(nextpages.text().trim())
+	}
+
+	var totalPages = paginationPage(nextpages,pageTotal)
+	if(nextpages == pageTotal)
+	{
+		$('ul#pagination-product').html("")
+		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-product').prepend(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+		for(var i = 0;i < totalPages.length;i++)
+		{
+			if(totalPages[i] === nextpages)
+			{
+				$('ul#pagination-product').append(`
+					<li onclick="switchPageSearch(this)" class="active">${nextpages}</li>
+				`)
+			}
+			else
+			{
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPageSearch(this)">${totalPages[i]}</li>
+					`)
+				}
+			}
+		}
+	}
+	if(nextpages > 0 && nextpages < pageTotal)
+	{
+		$('ul#pagination-product').html("")
+		$('ul#pagination-product').find('li.arrow-pagination').children('i[class*="-right"]').parent().remove()
+		$('ul#pagination-product').prepend(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></li>
+		`)
+
+		for (var i = 0; i < totalPages.length; i++) {
+			if (totalPages[i] === nextpages) {
+				$('ul#pagination-product').append(`
+				<li onclick="switchPageSearch(this)" class="active">${nextpages}</li>
+				`);
+			} 
+			else 
+			{
+				if (typeof totalPages[i] !== 'number') 
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`);
+				} 
+				else 
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPageSearch(this)">${totalPages[i]}</li>
+					`);
+				}
+			}
+		}
+
+		$('ul#pagination-product').append(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+	if(nextpages == 1)
+	{
+		$('ul#pagination-product').html("")
+		$('ul#pagination-product').find('li.arrow-pagination').remove()
+		for(var i = 0;i < totalPages.length;i++)
+		{
+			if(totalPages[i] === nextpages)
+			{
+				$('ul#pagination-product').append(`
+					<li onclick="switchPageSearch(this)" class="active">${nextpages}</li>
+				`)
+			}
+			else
+			{
+				if(typeof totalPages[i] !== 'number')
+				{
+					$('ul#pagination-product').append(`
+						<div class="" style="display: inline-block;margin: 0 10px;">${totalPages[i]}</div>
+					`)
+				}
+				else
+				{
+					$('ul#pagination-product').append(`
+						<li class="" onclick="switchPageSearch(this)">${totalPages[i]}</li>
+					`)
+				}
+			}
+		}
+		$('ul#pagination-product').append(`
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></li>
+			<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></li>
+		`)
+	}
+
+
+	$.ajax ({
+		type: "POST",
+		url: `${window.location.href}&page=${nextpages}`,
+		cache: false,
+		data: { 'currentpages': currentpages-1, 'nextpages': nextpages-1,'totalpages': pageTotal,'page':nextpages},
+		success: function(data) {
+			console.log(data)
+			// if(data.code === '1')
+			// {
+			// 	$('#row-list-product').html("")
+			// 	var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+			// 		return b.totalSold - a.totalSold;
+			// 	}) : data.listProduct.sort(function(a,b){
+			// 		return new Date(b.date) - new Date(a.date);
+			// 	})).map(p =>{
+			// 		$('#row-list-product').append(`
+			// 			<div class="col-md-4 col-xs-6">
+			// 				<div class="product">
+			// 					<div id="newItem" class="product-img">
+			// 						<img src="${p.image.path}" alt="">
+			// 						<div class="product-label">
+			// 							<span class="sale">-30%</span>
+			// 							<span class="new">NEW</span>
+			// 						</div>
+			// 					</div>
+			// 					<div class="product-body">
+			// 						<p class="product-category">${p.category}</p>
+			// 						<h3 class="product-name"><a href="/product/${linkProduct(p.name)}">${p.name}</a></h3>
+			// 						<h4 class="product-price">$${addDos(p.price)}<del class="product-old-price">$990.00</del></h4>
+			// 						<div class="product-rating">
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 						</div>
+			// 						<div class="product-btns">
+			// 							<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+			// 							<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+			// 							<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+			// 						</div>
+			// 						<span class="totalSold">${p.totalSold} sold</span>
+			// 					</div>
+			// 					<div id="store-list" class="add-to-cart">
+			// 						<button class="add-to-cart-btn" data-productName="${p.name}" 
+			// 						data-productPrice="${p.price}" data-productNumber="1">
+			// 							<i class="fa fa-shopping-cart"></i> 
+			// 							add to cart
+			// 						</button>
+			// 					</div>
+			// 				</div>
+			// 			</div>
+			// 		`)
+			// 	})
+			// }
+			// else if(data.code === '2')
+			// {
+			// 	$('#row-list-product').html("")
+			// 	var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+			// 		return b.totalSold - a.totalSold;
+			// 	}) : data.listProduct.sort(function(a,b){
+			// 		return new Date(b.date) - new Date(a.date);
+			// 	})).map(p =>{
+			// 		$('#row-list-product').append(`
+			// 			<div class="col-md-4 col-xs-6">
+			// 				<div class="product">
+			// 					<div id="newItem" class="product-img">
+			// 						<img src="${p.image.path}" alt="">
+			// 						<div class="product-label">
+			// 							<span class="sale">-30%</span>
+			// 							<span class="new">NEW</span>
+			// 						</div>
+			// 					</div>
+			// 					<div class="product-body">
+			// 						<p class="product-category">${p.category}</p>
+			// 						<h3 class="product-name"><a href="/product/${linkProduct(p.name)}">${p.name}</a></h3>
+			// 						<h4 class="product-price">$${addDos(p.price)}<del class="product-old-price">$990.00</del></h4>
+			// 						<div class="product-rating">
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 						</div>
+			// 						<div class="product-btns">
+			// 							<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+			// 							<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+			// 							<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+			// 						</div>
+			// 						<span class="totalSold">${p.totalSold} sold</span>
+			// 					</div>
+			// 					<div class="add-to-cart">
+			// 						<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
+			// 						data-productPrice="${p.price}" data-productNumber="1">
+			// 							<i class="fa fa-shopping-cart"></i> 
+			// 							add to cart
+			// 						</button>
+			// 					</div>
+			// 				</div>
+			// 			</div>
+			// 		`)
+			// 	})
+			// }
+			// else if(data.code === '3')
+			// {
+			// 	$('#row-list-product').html("")
+			// 	var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+			// 		return b.totalSold - a.totalSold;
+			// 	}) : data.listProduct.sort(function(a,b){
+			// 		return new Date(b.date) - new Date(a.date);
+			// 	})).map(p =>{
+			// 		$('#row-list-product').append(`
+			// 			<div class="col-md-4 col-xs-6">
+			// 				<div class="product">
+			// 					<div id="newItem" class="product-img">
+			// 						<img src="${p.image.path}" alt="">
+			// 						<div class="product-label">
+			// 							<span class="sale">-30%</span>
+			// 							<span class="new">NEW</span>
+			// 						</div>
+			// 					</div>
+			// 					<div class="product-body">
+			// 						<p class="product-category">${p.category}</p>
+			// 						<h3 class="product-name"><a href="/product/${linkProduct(p.name)}">${p.name}</a></h3>
+			// 						<h4 class="product-price">$${addDos(p.price)}<del class="product-old-price">$990.00</del></h4>
+			// 						<div class="product-rating">
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 						</div>
+			// 						<div class="product-btns">
+			// 							<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+			// 							<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+			// 							<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+			// 						</div>
+			// 						<span class="totalSold">${p.totalSold} sold</span>
+			// 					</div>
+			// 					<div class="add-to-cart">
+			// 						<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
+			// 						data-productPrice="${p.price}" data-productNumber="1">
+			// 							<i class="fa fa-shopping-cart"></i> 
+			// 							add to cart
+			// 						</button>
+			// 					</div>
+			// 				</div>
+			// 			</div>
+			// 		`)
+			// 	})
+			// }
+			// else if(data.code === '5')
+			// {
+			// 	$('#row-list-product').html("")
+			// 	var arr = (data.sortBy == '1' ? data.listProduct.sort(function(a,b){
+			// 		return b.totalSold - a.totalSold;
+			// 	}) : data.listProduct.sort(function(a,b){
+			// 		return new Date(b.date) - new Date(a.date);
+			// 	})).map(p =>{
+			// 		console.log(p)
+			// 		$('#row-list-product').append(`
+			// 			<div class="col-md-4 col-xs-6">
+			// 				<div class="product">
+			// 					<div id="newItem" class="product-img">
+			// 						<img src="${p.image.path}" alt="">
+			// 						<div class="product-label">
+			// 							<span class="sale">-30%</span>
+			// 							<span class="new">NEW</span>
+			// 						</div>
+			// 					</div>
+			// 					<div class="product-body">
+			// 						<p class="product-category">${p.category}</p>
+			// 						<h3 class="product-name"><a href="/product/${linkProduct(p.name)}">${p.name}</a></h3>
+			// 						<h4 class="product-price">$${addDos(p.price)}<del class="product-old-price">$990.00</del></h4>
+			// 						<div class="product-rating">
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 							<i class="fa fa-star"></i>
+			// 						</div>
+			// 						<div class="product-btns">
+			// 							<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+			// 							<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+			// 							<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+			// 						</div>
+			// 						<span class="totalSold">${p.totalSold} sold</span>
+			// 					</div>
+			// 					<div class="add-to-cart">
+			// 						<button id="store-list" class="add-to-cart-btn" data-productName="${p.name}" 
+			// 						data-productPrice="${p.price}" data-productNumber="1">
+			// 							<i class="fa fa-shopping-cart"></i> 
+			// 							add to cart
+			// 						</button>
+			// 					</div>
+			// 				</div>
+			// 			</div>
+			// 		`)
+			// 	})
+			// }
 		}
 	})
 	return false;
@@ -1879,4 +2336,17 @@ function addNoneStar(rating)
 		}
 	}
 	return html
+}
+
+function addDos(value)
+{
+	value += '';
+	x = value.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + '.' + '$2'); // changed comma to dot here
+	}
+	return x1 + x2;
 }

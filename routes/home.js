@@ -12,11 +12,18 @@ router.get('/',(req,res,next) => {
     var newPhone = []
     var newCam = []
     var listCart = []
-    
+    var typeList = []
     Product.find({}).then((product) =>{
         if(product)
         {
             var arr = product.map(c => {
+
+                var index = typeList.findIndex(e => e.type === c.category);
+                if (index === -1) {
+                    typeList.push({
+                        type: c.category,
+                    });
+                }
                 if(c.category === 'Laptop')
                     if(newLap.length < 5)
                     {
@@ -82,6 +89,7 @@ router.get('/',(req,res,next) => {
                         });
                     }
             })
+
             var user = req.session.user
             var infoUser = []
             var infoProduct = []
@@ -109,7 +117,8 @@ router.get('/',(req,res,next) => {
                                     infoProduct:infoProduct,
                                     newLap,
                                     newPhone,
-                                    newCam
+                                    newCam,
+                                    typeList
                                 })
                             })
                             .catch(error => {
@@ -122,7 +131,8 @@ router.get('/',(req,res,next) => {
                                 infoUser:infoUser,
                                 newLap,
                                 newPhone,
-                                newCam
+                                newCam,
+                                typeList
                             });
                         }
                     }).catch((error) => {
@@ -135,7 +145,8 @@ router.get('/',(req,res,next) => {
                 return res.render('index',{
                     newLap,
                     newPhone,
-                    newCam
+                    newCam,
+                    typeList
                 });
             }
         }
@@ -144,132 +155,153 @@ router.get('/',(req,res,next) => {
     })
 })
 
-router.post('/',function(req, res, next) {
+router.post('/',async function(req, res, next) {
     if(Object.keys(req.body).length !== 0)
     {
+        let body = req.body
+        // console.log(req.body)
         if(req.session.user)
         {
-            let body = req.body
-            let username = req.session.user
-            let productName = body.productName
-            if(body.action === 'add')
+            if(!body.action)
             {
-                Product.findOne({name:body.productName}).then((p)=>{
-                    let cart = new userCart({
-                        username:username,
-                        carts:[
+                let keyword = body.item
+                let category = body.category
+                let infoProduct = await findProducts(keyword,category)
+                res.status(200).send({ code: '3',infoProduct:infoProduct,keyword:keyword,category:category });
+            }
+            else
+            {
+                let username = req.session.user
+                let productName = body.productName
+                if(body.action === 'add')
+                {
+                    Product.findOne({name:body.productName}).then((p)=>{
+                        let cart = new userCart({
+                            username:username,
+                            carts:[
+                                {
+                                    productName:body.productName,
+                                    productNumber:body.productNumber,
+                                    productPrice:body.productPrice,
+                                    productImage:{
+                                        path:p.image.path,
+                                        name:p.image.name,
+                                        imageType:p.image.imageType
+                                    }
+                                }
+                            ]
+                        })
+                        
+                        userCart.findOne({username:username}).then((c) =>{
+                            if(c)
                             {
-                                productName:body.productName,
-                                productNumber:body.productNumber,
-                                productPrice:body.productPrice,
-                                productImage:{
-                                    path:p.image.path,
-                                    name:p.image.name,
-                                    imageType:p.image.imageType
+                                let totalNumber = c.carts.reduce((accum,item) => accum + item.productNumber, 0)
+                                let totalPrice = c.carts.reduce((accum,item) => accum + item.productPrice * item.productNumber, 0)
+                                if(totalNumber > 9)
+                                {
+                                    res.status(200).send({ code: '1',message:'Can only buy 10 items at a time' });
+                                }
+                                else
+                                {
+                                    console.log(body.productNumber,p.number)
+                                    if (c.carts.filter(e => e.productName === body.productName).length > 0) {
+                                        let number = c.carts.find(e => e.productName === body.productName).productNumber
+                                        if(body.productNumber > p.number)
+                                        {
+                                            res.status(200).send({ code: '7',message:"Can't buy more than the amount in stock" });
+                                        }
+                                        else
+                                        {
+                                            userCart.updateOne({username:username,"carts.productName" :body.productName},{"carts.$.productNumber": parseInt(number + 1)}).then((cp)=>{
+                                                res.status(200).send({ code: '4',message:'Success add to cart' ,productName:body.productName,productNumber:parseInt(number + 1),totalNumber:totalNumber+1,
+                                                totalPrice:totalPrice + parseInt(body.productPrice)});
+                                            }).catch((err)=>{
+                                                console.log(err) 
+                                            })  
+                                        }    
+                                    }
+                                    else if(body.productNumber > p.number)
+                                    {
+                                        res.status(200).send({ code: '7',message:"Can't buy more than the amount in stock" });
+                                    }
+                                    else
+                                    {
+                                        let newCart ={
+                                            productName:body.productName,
+                                            productNumber:body.productNumber,
+                                            productPrice:body.productPrice,
+                                            productImage:{
+                                                path:p.image.path,
+                                                name:p.image.name,
+                                                imageType:p.image.imageType
+                                            }
+                                        }
+                                        userCart.updateOne({username:username},{ $push:{"carts":newCart}}).then(()=>{
+                                            res.status(200).send({ code: '5',message:'Success add to cart' ,newCart:newCart,totalNumber:totalNumber+1,
+                                            totalPrice:totalPrice + parseInt(body.productPrice)});
+                                        }).catch((err)=>{
+                                            console.log(err) 
+                                        })     
+                                    }
                                 }
                             }
-                        ]
-                    })
-                    
+                            else
+                            {
+                                cart.save().then(()=>{
+                                    res.status(200).send({ code: '3',message:'Success add to cart' ,cart:cart.carts});
+                                }).catch((err)=>{
+                                    console.log(err) 
+                                })      
+                            }
+                        })  
+                    }).catch((err)=>{
+                        console.log(err) 
+                    }) 
+                }
+                if(body.action === 'delete')
+                {
                     userCart.findOne({username:username}).then((c) =>{
                         if(c)
                         {
                             let totalNumber = c.carts.reduce((accum,item) => accum + item.productNumber, 0)
                             let totalPrice = c.carts.reduce((accum,item) => accum + item.productPrice * item.productNumber, 0)
-                            if(totalNumber > 9)
+                            
+                            if(c.carts.filter(e => e.productName === body.productName).length > 0)
                             {
-                                res.status(200).send({ code: '1',message:'Can only buy 10 items at a time' });
-                            }
-                            else
-                            {
-                                console.log(body.productNumber,p.number)
-                                if (c.carts.filter(e => e.productName === body.productName).length > 0) {
-                                    let number = c.carts.find(e => e.productName === body.productName).productNumber
-                                    if(body.productNumber > p.number)
-                                    {
-                                        console.log("True")
-                                        res.status(200).send({ code: '7',message:"Can't buy more than the amount in stock" });
-                                    }
-                                    else
-                                    {
-                                        userCart.updateOne({username:username,"carts.productName" :body.productName},{"carts.$.productNumber": parseInt(number + 1)}).then((cp)=>{
-                                            res.status(200).send({ code: '4',message:'Success add to cart' ,productName:body.productName,productNumber:parseInt(number + 1),totalNumber:totalNumber+1,
-                                            totalPrice:totalPrice + parseInt(body.productPrice)});
-                                        }).catch((err)=>{
-                                            console.log(err) 
-                                        })  
-                                    }    
-                                }
-                                else if(body.productNumber > p.number)
-                                {
-                                    res.status(200).send({ code: '7',message:"Can't buy more than the amount in stock" });
-                                }
-                                else
-                                {
-                                    let newCart ={
-                                        productName:body.productName,
-                                        productNumber:body.productNumber,
-                                        productPrice:body.productPrice,
-                                        productImage:{
-                                            path:p.image.path,
-                                            name:p.image.name,
-                                            imageType:p.image.imageType
-                                        }
-                                    }
-                                    userCart.updateOne({username:username},{ $push:{"carts":newCart}}).then(()=>{
-                                        res.status(200).send({ code: '5',message:'Success add to cart' ,newCart:newCart,totalNumber:totalNumber+1,
-                                        totalPrice:totalPrice + parseInt(body.productPrice)});
-                                    }).catch((err)=>{
-                                        console.log(err) 
-                                    })     
-                                }
+                                let nameToDelete = c.carts.find(e => e.productName === body.productName).productName
+                                let numberToDelete  = c.carts.find(e => e.productName === body.productName).productNumber 
+                                let priceToDelete  = c.carts.find(e => e.productName === body.productName).productPrice
+                                console.log(nameToDelete,numberToDelete,priceToDelete)
+                                userCart.updateOne({username:username},{ $pull: { carts: { productName: nameToDelete } } },{multi:true})
+                                .then((cp) =>{
+                                    res.status(200).send({ code: '0',message:'Delete success',productName:nameToDelete,totalNumber:totalNumber-numberToDelete
+                                    ,totalPrice:totalPrice-(priceToDelete * numberToDelete)});
+                                }).catch((err)=>{
+                                    console.log(err) 
+                                }) 
                             }
                         }
-                        else
-                        {
-                            cart.save().then(()=>{
-                                res.status(200).send({ code: '3',message:'Success add to cart' ,cart:cart.carts});
-                            }).catch((err)=>{
-                                console.log(err) 
-                            })      
-                        }
-                    })  
-                }).catch((err)=>{
-                    console.log(err) 
-                }) 
-            }
-            if(body.action === 'delete')
-            {
-                userCart.findOne({username:username}).then((c) =>{
-                    if(c)
-                    {
-                        let totalNumber = c.carts.reduce((accum,item) => accum + item.productNumber, 0)
-                        let totalPrice = c.carts.reduce((accum,item) => accum + item.productPrice * item.productNumber, 0)
-                        
-                        if(c.carts.filter(e => e.productName === body.productName).length > 0)
-                        {
-                            let nameToDelete = c.carts.find(e => e.productName === body.productName).productName
-                            let numberToDelete  = c.carts.find(e => e.productName === body.productName).productNumber 
-                            let priceToDelete  = c.carts.find(e => e.productName === body.productName).productPrice
-                            console.log(nameToDelete,numberToDelete,priceToDelete)
-                            userCart.updateOne({username:username},{ $pull: { carts: { productName: nameToDelete } } },{multi:true})
-                            .then((cp) =>{
-                                res.status(200).send({ code: '0',message:'Delete success',productName:nameToDelete,totalNumber:totalNumber-numberToDelete
-                                ,totalPrice:totalPrice-(priceToDelete * numberToDelete)});
-                            }).catch((err)=>{
-                                console.log(err) 
-                            }) 
-                        }
-                    }
-                }).catch((err)=>{
-                    console.log(err) 
-                }) 
+                    }).catch((err)=>{
+                        console.log(err) 
+                    }) 
+                }
             }
         }
         else
         {
-            res.status(200).send({ code: '2',message:'Need to login' });
+            if(!body.action)
+            {
+                let keyword = body.item
+                let category = body.category
+                let infoProduct = await findProducts(keyword,category)
+                res.status(200).send({ code: '3',infoProduct:infoProduct,keyword:keyword,category:category });
+            }
+            else
+            {
+                res.status(200).send({ code: '2',message:'Need to login' });
+            }
         }
+
     }
     else
     {
@@ -281,6 +313,47 @@ router.get('/user/logout', (req, res) => {
     req.session.destroy()
     res.redirect('/')
 })
+
+function findProducts(keyword, category) {
+    return new Promise((resolve, reject) => {
+        if (keyword === '') {
+            // Trả về giá trị rỗng nếu keyword là chuỗi rỗng
+            resolve([]);
+        } else {
+            let query = {
+                name: { $regex: keyword, $options: 'i' }
+            };
+
+            if (category.toLowerCase() !== 'all') {
+                query.category = category;
+            }
+
+            Product.find(query).sort({ date: -1, _id: -1 })
+                .then(products => {
+                    let infoProduct = products.map(c => ({
+                        id: c._id,
+                        name: c.name,
+                        price: c.price,
+                        date: c.date,
+                        category: c.category,
+                        desc: c.desc,
+                        detail: c.detail,
+                        image: {
+                            path: c.image.path,
+                            name: c.image.name,
+                            imageType: c.image.imageType
+                        },
+                        totalSold: c.totalSold
+                    }));
+                    resolve(infoProduct);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        }
+    });
+}
+
     
 
 module.exports = router

@@ -306,7 +306,6 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
     {
         let body = req.body
         let {myImage} = req.files
-        console.log(myImage)
         let product = new Product({
             name:body.name,
             number:body.number,
@@ -329,7 +328,6 @@ router.post('/add-product',uploader.fields([{name:'myImage'}]),addValidator,(req
                 productName:p.name,
             })
             newRating.save()
-            console.log('success')
             res.redirect('list-product')
         }).catch((err)=>{
             console.log(err) 

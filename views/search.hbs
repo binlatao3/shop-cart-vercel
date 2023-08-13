@@ -188,7 +188,7 @@
 					<!-- NAV -->
 					<ul class="main-nav nav navbar-nav">
 						<li><a href="/">Home</a></li>
-						<li class="active"><a href="/store">Store</a></li>
+						<li><a href="/store">Store</a></li>
 					</ul>
 					<!-- /NAV -->
 				</div>
@@ -207,7 +207,7 @@
 					<div class="col-md-12">
 						<ul class="breadcrumb-tree">
 							<li><a href="/">Home</a></li>
-							<li class="active"><a href="/store">Store</a></li>
+							<li><a href="/store">Store</a></li>
 						</ul>
 					</div>
 				</div>
@@ -222,102 +222,10 @@
 			<!-- container -->
 			<div class="container">
 				<!-- row -->
-				<div class="row">
+				<div class="row" id="searchPage">
 					<div class='alert alert-dismissible' id="alert-dismissible" role='alert'></div>
-					<!-- ASIDE -->
-					<div id="aside" class="col-md-3">
-						<!-- aside Widget -->
-						<div class="aside">
-							<h3 class="aside-title">Categories</h3>
-							<div class="checkbox-filter">
-
-								{{#each setTypeList}}
-									<div id="type-product" class="input-checkbox">
-										<input type="checkbox" id="category-{{{inc @index}}}">
-										<label for="category-{{{inc @index}}}">
-											<span></span>
-											{{{this.type}}}
-											<small>({{{this.number}}})</small>
-										</label>
-									</div>
-								{{/each}}
-							</div>
-						</div>
-						<!-- /aside Widget -->
-
-						<!-- aside Widget -->
-						<div class="aside">
-							<h3 class="aside-title">Price</h3>
-							<div class="price-filter">
-								<div id="price-slider"></div>
-								<div class="input-number price-min">
-									<input id="price-min" type="number" placeholder="0">
-									<span class="qty-up">+</span>
-									<span class="qty-down">-</span>
-								</div>
-								<span>-</span>
-								<div class="input-number price-max">
-									<input id="price-max" type="number" placeholder="0">
-									<span class="qty-up">+</span>
-									<span class="qty-down">-</span>
-								</div>
-							</div>
-							<div class='alert alert-dismissible' id="filter" role='alert'></div>
-						</div>
-						<!-- /aside Widget -->
-					</div>
-					<!-- /ASIDE -->
-
 					<!-- STORE -->
 					<div id="store" class="col-md-9">
-						<!-- store top filter -->
-						<div class="store-filter clearfix">
-							<div class="store-sort">
-								<label>
-									Sort By:
-									<select class="input-select" id="sortPage">
-										{{#compare sortBy 'eq' 0}}
-											<option selected value="0">Newest</option>
-											<option value="1">Popular</option>
-										{{else}}
-											{{#compare sortBy 'eq' 1}}
-												<option value="0">Newest</option>
-												<option selected value="1">Popular</option>
-											{{else}}
-												<option selected value="0">Newest</option>
-												<option value="1">Popular</option>
-											{{/compare}}
-										{{/compare}}
-									</select>
-								</label>
-
-								<label>
-									Show:
-									<select class="input-select" id="perPage">
-										{{#if perPage}}
-											{{#compare perPage 'eq' 2}}
-												<option selected value="0">20</option>
-												<option value="1">50</option>
-											{{else}}
-												{{#compare perPage 'eq' 5}}
-													<option value="0">20</option>
-													<option selected value="1">50</option>
-												{{else}}
-													<option selected value="0">20</option>
-													<option value="1">50</option>
-												{{/compare}}
-											{{/compare}}
-										{{/if}}
-									</select>
-								</label>
-							</div>
-							<ul class="store-grid">
-								<li class="active"><i class="fa fa-th"></i></li>
-								<li><a href="#"><i class="fa fa-th-list"></i></a></li>
-							</ul>
-						</div>
-						<!-- /store top filter -->
-
 						<!-- store products -->
 						<div class="row" id="row-list-product">
 							<!-- product -->
@@ -373,18 +281,18 @@
 							<ul class="store-pagination" id="pagination-product">
 								{{#compare currentpage 'noteq' 1}}
 									{{#if prevP}}
-										<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></a></li>
+										<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-left"></i></a></li>
 									{{/if}}
 									{{#if prevPage}}
-										<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></a></li>
+										<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-left"></i></a></li>
 									{{/if}}
 								{{/compare}}
 								{{#each totalPages}}
 										{{#compare this 'eq' ../currentpage}}
-											 <li onclick="switchPage(this)" class="active">{{inc @index}}</li>
+											 <li onclick="switchPageSearch(this)" class="active">{{inc @index}}</li>
 										{{else}}
 											{{#isNumber this}}
-												<li onclick="switchPage(this)">
+												<li onclick="switchPageSearch(this)">
 													{{this}}
 												</li>
 											{{else}}
@@ -394,10 +302,10 @@
 								{{/each}}
 								{{#compare currentpage 'noteq' nextP}}
 									{{#if nextPage}}
-										<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></a></li>
+										<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-right"></i></a></li>
 									{{/if}}
 									{{#if nextP}}
-										<li onclick="switchPage(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></a></li>
+										<li onclick="switchPageSearch(this)" class="arrow-pagination"><i class="fa fa-angle-double-right"></i></a></li>
 									{{/if}}
 								{{/compare}}
 							</ul>

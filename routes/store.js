@@ -567,8 +567,6 @@ router.post('/', function(req, res, next) {
     var body = req.body
     var listProduct = []
     var perPage
-    console.log('body',body)
-
     if(body.perPage === '0')
     {
         perPage = 2
@@ -583,7 +581,6 @@ router.post('/', function(req, res, next) {
     {
         if(!body.perPage)
         {
-            console.log('yes')
             perPage = req.session.perPage
         }
     }
@@ -2680,7 +2677,6 @@ router.post('/page/:page', function(req, res, next) {
     var body = req.body
     var listProduct = []
     var perPage
-    console.log(body)
 
     if(body.perPage === '0')
     {
