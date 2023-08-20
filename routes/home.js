@@ -13,7 +13,7 @@ router.get('/',(req,res,next) => {
     var newCam = []
     var listCart = []
     var typeList = []
-    Product.find({}).then((product) =>{
+    Product.find({}).sort({date:-1,index:-1}).then((product) =>{
         if(product)
         {
             var arr = product.map(c => {
@@ -39,11 +39,9 @@ router.get('/',(req,res,next) => {
                                 path:c.image.path,
                                 name:c.image.name,
                                 imageType:c.image.imageType
-                            }
+                            },
+                            totalSold:c.totalSold
                         })
-                        newLap.sort(function(a,b){
-                            return new Date(b.date) - new Date(a.date);
-                        });
                     }
                 if(c.category === 'Smartphone')
                     if(newPhone.length < 5)
@@ -63,9 +61,6 @@ router.get('/',(req,res,next) => {
                             },
                             totalSold:c.totalSold
                         })
-                        newPhone.sort(function(a,b){
-                            return new Date(b.date) - new Date(a.date);
-                        });
                     }
                 if(c.category === 'Camera')
                     if(newCam.length < 5)
@@ -82,11 +77,9 @@ router.get('/',(req,res,next) => {
                                 path:c.image.path,
                                 name:c.image.name,
                                 imageType:c.image.imageType
-                            }
+                            },
+                            totalSold:c.totalSold
                         })
-                        newCam.sort(function(a,b){
-                            return new Date(b.date) - new Date(a.date);
-                        });
                     }
             })
 

@@ -421,6 +421,7 @@ router.get('/',(req,res,next) => {
                                                         nextP,
                                                         pageTotal,
                                                         perPage,
+                                                        item:item
                                                     })
                                                 }
                                             })
@@ -525,6 +526,7 @@ router.get('/',(req,res,next) => {
                                             nextP,
                                             pageTotal,
                                             perPage,
+                                            item:item
                                         })
                                     }
                                 })
@@ -687,6 +689,7 @@ router.get('/',(req,res,next) => {
                                                         nextP,
                                                         pageTotal,
                                                         perPage,
+                                                        item:item
                                                     })
                                                 }
                                             })
@@ -794,6 +797,7 @@ router.get('/',(req,res,next) => {
                                             nextP,
                                             pageTotal,
                                             perPage,
+                                            item:item
                                         })
                                     }
                                 })
@@ -953,6 +957,7 @@ router.get('/',(req,res,next) => {
                                                         nextP,
                                                         pageTotal,
                                                         perPage,
+                                                        item:item
                                                     })
                                                 }
                                             })
@@ -1060,6 +1065,7 @@ router.get('/',(req,res,next) => {
                                             nextP,
                                             pageTotal,
                                             perPage,
+                                            item:item
                                         })
                                     }
                                 })

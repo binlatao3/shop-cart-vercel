@@ -2222,6 +2222,11 @@ p#notfound-item{
   display: flex;
   justify-content: center;
 }
+
+.search-item{
+  display: flex;
+  justify-content: center;
+}
 /*=========================================================
 	13 -> RESPONSIVE
 ===========================================================*/
